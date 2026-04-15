@@ -1,0 +1,15 @@
+{
+  "name": "discord-cricket-bot",
+  "version": "1.5.0",
+  "description": "Cricket Guru - Ultimate Discord Cricket Gaming Bot",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.11.0"
+  },
+  "engines": {
+    "node": ">=16.9.0"
+  }
+}
