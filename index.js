@@ -1,3 +1,4 @@
+const http = require('http');
 const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 const cricket = require('./cricket-system.js');
 
@@ -12,7 +13,7 @@ const client = new Client({
 // Load cricket data
 cricket.loadData();
 
-client.once('clientReady', () => {
+client.once('ready', () => {
   console.log('🏏 Cricket Guru Bot is online!');
 });
 
@@ -451,6 +452,26 @@ if (!botToken) {
   process.exit(1);
 }
 
+const port = process.env.PORT || 3000;
+http.createServer((req, res) => {
+  res.writeHead(200, { 'Content-Type': 'text/plain' });
+  res.end('Cricket Guru Bot is running');
+}).listen(port, () => {
+  console.log(`Health server listening on port ${port}`);
+});
+
 console.log('Attempting to login...');
 client.login(botToken);
+
+client.on('error', (error) => {
+  console.error('Discord client error:', error);
+});
+
+process.on('unhandledRejection', (reason) => {
+  console.error('Unhandled Rejection:', reason);
+});
+
+process.on('uncaughtException', (error) => {
+  console.error('Uncaught Exception:', error);
+});
 
