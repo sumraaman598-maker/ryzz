@@ -1,4 +1,4 @@
-const http = require('http');
+﻿const http = require('http');
 const { Client, GatewayIntentBits, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const cricket = require('./cricket-system.js');
 
@@ -158,86 +158,8 @@ function buildSoloScorecardPayload(match) {
   return { embeds: [embed], components: buildSoloMatchButtons(match) };
 }
 
-// Helper: render ball result embed and handle innings switch / match end
-async function handleBallResult(message, result, duelId) {
-  const { shot, delivery, runs, isWicket, inningsData, inningsSwitched, matchOver, duel, batterRating, bowlerRating } = result;
-
-  const shotEmoji = { aggressive: '💥', defensive: '🛡️', loft: '🚀', sweep: '🌀' };
-  const deliveryEmoji = { fast: '⚡', spin: '🌪️', yorker: '🎯', bouncer: '💢' };
-
-  const ballEmbed = new EmbedBuilder()
-    .setColor(isWicket ? '#dc143c' : runs >= 6 ? '#FFD700' : runs >= 4 ? '#1f8b4c' : '#4a90d9')
-    .setTitle(isWicket ? '🔴 WICKET!' : runs === 6 ? '🏏 SIX!' : runs === 4 ? '🏏 FOUR!' : `✅ ${runs} Run${runs !== 1 ? 's' : ''}`)
-    .addFields(
-      { name: `${shotEmoji[shot] || '🏏'} Shot`, value: shot.charAt(0).toUpperCase() + shot.slice(1), inline: true },
-      { name: `${deliveryEmoji[delivery] || '🎳'} Delivery`, value: delivery.charAt(0).toUpperCase() + delivery.slice(1), inline: true },
-      { name: '\u200b', value: '\u200b', inline: true },
-      { name: '🏏 Batter Rating', value: `⭐ ${batterRating}`, inline: true },
-      { name: '🎳 Bowler Rating', value: `⭐ ${bowlerRating}`, inline: true },
-      { name: '\u200b', value: '\u200b', inline: true },
-      { name: 'Score', value: `${inningsData.runs}/${inningsData.wickets} (${Math.floor(inningsData.balls / 6)}.${inningsData.balls % 6} ov)` }
-    );
-
-  if (inningsSwitched) {
-    const freshDuel = cricket.getDuel(duelId);
-    const battingName = freshDuel.players[freshDuel.battingTeam].username;
-    const bowlingName = freshDuel.players[freshDuel.bowlingTeam].username;
-    const target = freshDuel.scores[1].runs + 1;
-    ballEmbed.addFields(
-      { name: '🔄 Innings Over!', value: `**Innings 2 begins!**\nTarget: **${target} runs**` },
-      { name: '🏏 Now Batting', value: battingName },
-      { name: '🎳 Now Bowling', value: bowlingName },
-      { name: 'Next Step', value: `${battingName}: \`rcsetbatter [num]\`\n${bowlingName}: \`rcsetbowler [num]\`` }
-    );
-  } else if (matchOver) {
-    const freshDuel = cricket.getDuel(duelId);
-    const winnerName = freshDuel.winner === 'tie' ? null : freshDuel.players[freshDuel.winner].username;
-    const s1 = cricket.formatScore(freshDuel, 1);
-    const s2 = cricket.formatScore(freshDuel, 2);
-    const p1name = freshDuel.players[freshDuel.teamA].username;
-    const p2name = freshDuel.players[freshDuel.teamB].username;
-    ballEmbed.addFields(
-      { name: '🏁 MATCH OVER', value: freshDuel.winner === 'tie' ? "🤝 It's a Tie!" : `🏆 **${winnerName}** wins!` },
-      { name: `${p1name} (Inn 1)`, value: s1, inline: true },
-      { name: `${p2name} (Inn 2)`, value: s2, inline: true },
-      { name: 'Rewards', value: winnerName ? `**${winnerName}** +200 coins | Loser +50 coins` : 'Both players +75 coins (tie)' }
-    );
-  } else {
-    ballEmbed.addFields({
-      name: 'Next Ball',
-      value: `🏏 Batter: \`rcshot [aggressive/defensive/loft/sweep]\`\n🎳 Bowler: \`rcbowl [fast/spin/yorker/bouncer]\``
-    });
-  }
-
-  await message.reply({ embeds: [ballEmbed] });
-}
-
-// Timeout checker — auto-play if a player goes AFK (runs every 30s)
-setInterval(() => {
-  if (!cricket.cricketData.duels) return;
-  Object.values(cricket.cricketData.duels).forEach(async duel => {
-    if (duel.status !== 'live') return;
-    if (!duel.lastBallTime) return;
-    if (Date.now() - duel.lastBallTime < 60000) return;
-
-    const result = cricket.autoPlayTimeout(duel.duelId);
-    if (!result || !result.success) return;
-
-    // Find the channel to post in
-    if (!duel.channelId) return;
-    const channel = client.channels.cache.get(duel.channelId);
-    if (!channel) return;
-
-    const timedOutSide = result.timedOutRole === 'bowler'
-      ? duel.players[duel.bowlingTeam].username
-      : duel.players[duel.battingTeam].username;
-    await channel.send(`⏱️ **${timedOutSide}** took too long — auto-played!`);
-
-    // Build a fake message-like object to reuse handleBallResult
-    const fakeMsg = { reply: (opts) => channel.send(opts) };
-    await handleBallResult(fakeMsg, result, duel.duelId);
-  });
-}, 30000);
+// Helper: render ball result embed and handle innings switch / match end — LEGACY (solo only, kept for reference)
+// Solo match uses buildSoloBallPayload instead
 
 client.once('ready', () => {
   console.log('🏏 Cricket Guru Bot is online!');
@@ -257,13 +179,14 @@ client.on('messageCreate', async (message) => {
       .addFields(
         { name: '── Collection ──', value: '\u200b' },
         { name: 'rcguide', value: 'Quick-start guide for building your club and winning matches' },
-        { name: 'rcdebut', value: 'Start your cricket journey (10 low + 1 high rated players)' },
-        { name: 'rcclaim', value: 'Claim a random player (1-hour cooldown)' },
-        { name: 'rcdaily', value: 'Get daily 2000 coins (24-hour cooldown)' },
-        { name: 'rcpurse', value: 'Check your coin balance and reward progress' },
-        { name: 'rcaddcard [name]', value: 'Buy a specific player card (100 coins)' },
-        { name: 'rcrelease [num]', value: 'Release a card for coins' },
-        { name: 'rcsearch [name/country/role]', value: 'Search the global player pool' },
+        { name: 'rcdebut', value: 'Start your journey — get 11 players (4 bat, 2 AR, 3 bowl, 1 WK + 1 star) + 1000 coins' },
+        { name: 'rcclaim', value: 'Claim a free bronze/silver player (1-hour cooldown)' },
+        { name: 'rcdaily', value: 'Get 1500 coins + a bonus bronze card (24-hour cooldown)' },
+        { name: 'rcpurse', value: 'Check your coin balance and squad value' },
+        { name: 'rcaddcard [name]', value: 'Sign a player — cost based on rating (100–5000 coins)' },
+        { name: 'rcrelease [num]', value: 'Release a card for 40% of market value' },
+        { name: 'rcwheel', value: 'Spin the wheel for coins or a player (200 coins)' },
+        { name: 'rcsearch [name/country/role]', value: 'Search the global player pool (218 players)' },
         { name: '── Squad ──', value: '\u200b' },
         { name: 'rcprofile', value: 'View your club profile and stats' },
         { name: 'rccareer', value: 'Detailed career summary' },
@@ -277,15 +200,7 @@ client.on('messageCreate', async (message) => {
         { name: 'rcswap [squadPos] [cardNum]', value: 'Swap a squad player with a card from your collection' },
         { name: 'rcallplayers', value: 'View all real cricket players' },
         { name: '── 1v1 Match ──', value: '\u200b' },
-        { name: 'rcchallenge @user [t20/odi]', value: 'Challenge another player to a match' },
-        { name: 'rcaccept', value: 'Accept an incoming challenge' },
-        { name: 'rcdecline', value: 'Decline an incoming challenge' },
-        { name: 'rctoss [bat/bowl]', value: 'Choose bat or bowl after winning toss' },
-        { name: 'rcsetbatter [num]', value: 'Set your active batter from squad' },
-        { name: 'rcsetbowler [num]', value: 'Set your active bowler from squad' },
-        { name: 'rcshot [aggressive/defensive/loft/sweep]', value: 'Play a shot (batting team)' },
-        { name: 'rcbowl [fast/spin/yorker/bouncer]', value: 'Bowl a delivery (bowling team)' },
-        { name: 'rcduelstatus', value: 'View current 1v1 match status' },
+        { name: 'rcchallenge @user [t20/odi]', value: 'Challenge another player — buttons handle everything from there' },
         { name: '── Other ──', value: '\u200b' },
         { name: 'rcplay [t20/odi]', value: 'Start a button-based solo match vs AI' },
         { name: 'rcscorecard', value: 'View the current solo match scorecard' },
@@ -339,16 +254,20 @@ client.on('messageCreate', async (message) => {
       return message.reply(`❌ ${result.message}`);
     }
 
-    let playerList = '🎉 **Debut Successful!**\n\n**Your New Squad:**\n';
+    const star = result.starSigning;
+    let playerList = `🎉 **Debut Successful! Welcome to Cricket Guru!**\n\n`;
+    playerList += `**Your Starting XI:**\n`;
     result.players.forEach((player, i) => {
-      const isStarPlayer = player.rating >= 90 ? '⭐⭐⭐' : '';
-      playerList += `${i + 1}. **${player.name}** (${player.country}) | ${player.position} | ⭐ ${player.rating} ${isStarPlayer}\n`;
+      const isStar = star && player.name === star.name;
+      const tierEmoji = { elite: '🌟', gold: '🥇', silver: '🥈', bronze: '🥉' }[player.tier] || '⭐';
+      playerList += `${i + 1}. ${tierEmoji} **${player.name}** (${player.country}) | ${player.position} | ⭐ ${player.rating}${isStar ? ' ← ⚡ STAR SIGNING!' : ''}\n`;
     });
-    playerList += '\n**Bonus:** +500 Coins';
+    playerList += `\n💰 **Debut Bonus:** +1000 Coins\n`;
+    playerList += `\n✅ All 11 players auto-added to your squad! Use \`rcplay\` to start a match.`;
 
     if (playerList.length > 1900) {
       const chunks = playerList.match(/[\s\S]{1,1900}/g);
-      chunks.forEach(chunk => message.reply(chunk));
+      for (const chunk of chunks) await message.reply(chunk);
     } else {
       message.reply(playerList);
     }
@@ -389,8 +308,8 @@ client.on('messageCreate', async (message) => {
       .setColor('#FFD700')
       .setTitle('💰 Daily Reward Claimed!')
       .addFields(
-        { name: 'Coins Received', value: `+${result.coins}` },
-        { name: 'Message', value: result.message }
+        { name: 'Coins', value: `+${result.coins} 🪙`, inline: true },
+        { name: 'Bonus Card', value: result.bonusPlayer ? `🥉 **${result.bonusPlayer.name}** (${result.bonusPlayer.country}) ⭐${result.bonusPlayer.rating}` : 'None today', inline: true }
       )
       .setFooter({ text: 'Next daily reward available in 24 hours' });
 
@@ -400,19 +319,23 @@ client.on('messageCreate', async (message) => {
   else if (command === 'rcpurse') {
     cricket.initializeUser(userId, message.author.username);
     const user = cricket.getProfile(userId);
+    const squad = cricket.getSquad(userId);
+    const squadValue = squad.reduce((sum, c) => sum + cricket.getPlayerValue(c), 0);
+    const collectionValue = user.cards.reduce((sum, c) => sum + cricket.getPlayerValue(c), 0);
     const purseEmbed = new EmbedBuilder()
       .setColor('#FFD700')
-      .setTitle('ðŸ’° Club Purse')
+      .setTitle('Club Purse')
       .addFields(
         { name: 'Team', value: cricket.getTeamName(userId), inline: false },
         { name: 'Coins', value: String(user.stats.coins), inline: true },
-        { name: 'Cards Owned', value: String(user.cards.length), inline: true },
-        { name: 'Squad Size', value: `${cricket.getSquad(userId).length}/11`, inline: true },
-        { name: 'Income Tips', value: '`rcdaily`, `rcclaim`, duel wins, and `rcrelease` all help grow your purse.' }
+        { name: 'Cards', value: String(user.cards.length), inline: true },
+        { name: 'Squad', value: `/11`, inline: true },
+        { name: 'Squad Value', value: ` coins`, inline: true },
+        { name: 'Collection Value', value: ` coins`, inline: true },
+        { name: 'Earn More', value: '`rcdaily` +1500 coins | `rcclaim` free player | `rcwheel` spin | win matches' }
       );
     message.reply({ embeds: [purseEmbed] });
   }
-
   else if (command === 'rccareer') {
     cricket.initializeUser(userId, message.author.username);
     const user = cricket.getProfile(userId);
@@ -795,27 +718,29 @@ client.on('messageCreate', async (message) => {
   else if (command === 'rcaddcard') {
     cricket.initializeUser(userId, message.author.username);
     const user = cricket.getProfile(userId);
+    const playerName = args.slice(1).join(' ');
 
-    if (user.stats.coins < 100) {
-      return message.reply('❌ Need 100 coins! (You have ' + user.stats.coins + ')');
+    if (!playerName) {
+      return message.reply('❌ Usage: `rcaddcard [Player Name]`\nExample: `rcaddcard Virat Kohli`\nUse `rcallplayers` or `rcsearch` to find players!');
     }
 
-    const playerName = args.slice(1).join(' ');
-    
-    if (!playerName) {
-      return message.reply('❌ Usage: `rcaddcard [Player Name]`\nExample: `rcaddcard Virat Kohli`\nUse `rcallplayers` to see all players!');
+    const playerData = cricket.getPlayerByName(playerName);
+    if (!playerData) {
+      return message.reply(`❌ Player "${playerName}" not found! Use \`rcsearch ${playerName}\` to search.`);
+    }
+
+    const cost = cricket.getCardCost(playerData.rating);
+    if (user.stats.coins < cost) {
+      return message.reply(`❌ Need **${cost} coins** to sign **${playerData.name}** (⭐${playerData.rating}). You have **${user.stats.coins}** coins.`);
     }
 
     const card = cricket.addCard(userId, playerName);
-
-    if (!card) {
-      return message.reply(`❌ Player "${playerName}" not found! Use \`rcallplayers\` to see all real cricket players.`);
+    if (!card || card.error) {
+      return message.reply(`❌ Could not sign player. You have ${user.stats.coins} coins.`);
     }
 
-    user.stats.coins -= 100;
-    cricket.saveData();
-
-    message.reply(`🎴 **New Card Acquired!**\n**${card.name}** (${card.country})\n${card.position} | ${card.role}\n⭐ Rating: ${card.rating}`);
+    const tierEmoji = { elite: '🌟', gold: '🥇', silver: '🥈', bronze: '🥉' }[card.tier] || '⭐';
+    message.reply(`${tierEmoji} **Signed!** **${card.name}** (${card.country})\n${card.position} | ${card.role} | ⭐ ${card.rating}\n💰 Cost: **${cost} coins** | Balance: **${user.stats.coins} coins**`);
   }
 
   else if (command === 'rcrelease') {
@@ -841,292 +766,95 @@ client.on('messageCreate', async (message) => {
 
   else if (command === 'rcallplayers') {
     const allPlayers = cricket.getAllPlayers();
-    
-    // Group by country
     const playersByCountry = {};
     allPlayers.forEach(player => {
-      if (!playersByCountry[player.country]) {
-        playersByCountry[player.country] = [];
-      }
+      if (!playersByCountry[player.country]) playersByCountry[player.country] = [];
       playersByCountry[player.country].push(player);
     });
 
-    let playerList = '🏏 **All Available Cricket Players**\n\n';
+    const tierEmojis = { elite: '🌟', gold: '🥇', silver: '🥈', bronze: '🥉' };
+    let playerList = `🏏 **All Cricket Players (${allPlayers.length} total)**\n\n`;
     Object.keys(playersByCountry).sort().forEach(country => {
       playerList += `**${country}**\n`;
-      playersByCountry[country].forEach(player => {
-        playerList += `• ${player.name} | ${player.position} | ⭐ ${player.rating}\n`;
+      playersByCountry[country].sort((a,b) => b.rating - a.rating).forEach(player => {
+        const te = tierEmojis[player.tier] || '⭐';
+        playerList += `${te} ${player.name} | ${player.position} | ⭐${player.rating} | 💰${cricket.getCardCost(player.rating)}\n`;
       });
       playerList += '\n';
     });
 
-    // Discord has a 2000 character limit, so we need to split messages if needed
     if (playerList.length > 1900) {
       const chunks = playerList.match(/[\s\S]{1,1900}/g);
-      chunks.forEach(chunk => message.reply(chunk));
+      for (const chunk of chunks) message.reply(chunk);
     } else {
       message.reply(playerList);
     }
+  }
+
+  else if (command === 'rcwheel' || command === 'rcslots') {
+    cricket.initializeUser(userId, message.author.username);
+    const result = cricket.spinWheel(userId);
+
+    if (!result.success) return message.reply(`❌ ${result.message}`);
+
+    const wheelEmbed = new EmbedBuilder().setTitle('🎰 Spin Wheel!');
+
+    if (result.type === 'coins') {
+      wheelEmbed.setColor('#FFD700')
+        .setDescription(`🎉 **You won ${result.amount} coins!**`)
+        .addFields({ name: 'Winnings', value: `+${result.amount} 🪙`, inline: true });
+    } else if (result.type === 'player') {
+      const te = { elite: '🌟', gold: '🥇', silver: '🥈', bronze: '🥉' }[result.player.tier] || '⭐';
+      wheelEmbed.setColor('#1f8b4c')
+        .setDescription(`${te} **You won a player card!**`)
+        .addFields(
+          { name: 'Player', value: `**${result.player.name}** (${result.player.country})`, inline: true },
+          { name: 'Rating', value: `⭐ ${result.player.rating}`, inline: true }
+        );
+    } else {
+      wheelEmbed.setColor('#888888').setDescription('😔 Better luck next time! No prize this spin.');
+    }
+
+    wheelEmbed.setFooter({ text: 'Cost: 200 coins per spin' });
+    message.reply({ embeds: [wheelEmbed] });
   }
 
   // ── 1v1 DUEL COMMANDS ──────────────────────────────────────────
 
   else if (command === 'rcchallenge') {
     cricket.initializeUser(userId, message.author.username);
-
     const mentioned = message.mentions.users.first();
     if (!mentioned) return message.reply('❌ Usage: `rcchallenge @user [t20/odi]`');
     if (mentioned.id === userId) return message.reply('❌ You cannot challenge yourself!');
     if (mentioned.bot) return message.reply('❌ You cannot challenge a bot!');
 
-    const format = (args[2] || 't20').toLowerCase();
-    if (!['t20', 'odi'].includes(format)) return message.reply('❌ Format must be `t20` or `odi`.');
+    const format = (['t20','odi'].includes((args[2]||'').toLowerCase())) ? args[2].toLowerCase() : 't20';
 
-    // Check squad requirements
     const squad = cricket.getSquad(userId);
-    const batters = squad.filter(p => p.position === 'Batsman' || p.position === 'All-rounder');
-    const bowlers = squad.filter(p => p.position === 'Bowler' || p.position === 'All-rounder');
-    if (batters.length === 0) return message.reply('❌ You need at least 1 batter/all-rounder in your squad! Use `rcaddtosquad`.');
-    if (bowlers.length === 0) return message.reply('❌ You need at least 1 bowler/all-rounder in your squad! Use `rcaddtosquad`.');
-
-    // Check if either player is already in a duel
-    if (cricket.getUserActiveDuel(userId)) return message.reply('❌ You are already in an active match! Use `rcduelstatus`.');
+    if (!squad.some(p => p.position === 'Batsman' || p.position === 'All-rounder'))
+      return message.reply('❌ You need at least 1 batter/all-rounder in your squad!');
+    if (!squad.some(p => p.position === 'Bowler' || p.position === 'All-rounder'))
+      return message.reply('❌ You need at least 1 bowler/all-rounder in your squad!');
+    if (cricket.getUserActiveDuel(userId)) return message.reply('❌ You are already in an active match!');
     if (cricket.getUserActiveDuel(mentioned.id)) return message.reply(`❌ ${mentioned.username} is already in an active match!`);
 
     cricket.createChallenge(userId, message.author.username, mentioned.id, format);
 
-    const challengeEmbed = new EmbedBuilder()
+    const row = new ActionRowBuilder().addComponents(
+      new ButtonBuilder().setCustomId(`duel:accept:${userId}`).setLabel('✅ Accept').setStyle(ButtonStyle.Success),
+      new ButtonBuilder().setCustomId(`duel:decline:${userId}`).setLabel('❌ Decline').setStyle(ButtonStyle.Danger)
+    );
+
+    const embed = new EmbedBuilder()
       .setColor('#FFD700')
       .setTitle('⚔️ Cricket Challenge!')
-      .setDescription(`${mentioned}, you have been challenged to a **${format.toUpperCase()}** match by **${message.author.username}**!`)
+      .setDescription(`${mentioned}, **${message.author.username}** challenges you to a **${format.toUpperCase()}** match!`)
       .addFields(
         { name: 'Format', value: format.toUpperCase(), inline: true },
         { name: 'Overs', value: format === 'odi' ? '50' : '20', inline: true },
-        { name: 'How to respond', value: '`rcaccept` to accept\n`rcdecline` to decline' },
-        { name: 'Expires', value: 'In 2 minutes' }
+        { name: 'Expires', value: 'In 2 minutes', inline: true }
       );
-    message.reply({ embeds: [challengeEmbed] });
-  }
-
-  else if (command === 'rcaccept') {
-    cricket.initializeUser(userId, message.author.username);
-
-    const challenge = cricket.getChallenge(userId);
-    if (!challenge) return message.reply('❌ No pending challenge for you! Ask someone to `rcchallenge` you.');
-
-    // Check squad requirements for acceptor
-    const squad = cricket.getSquad(userId);
-    const batters = squad.filter(p => p.position === 'Batsman' || p.position === 'All-rounder');
-    const bowlers = squad.filter(p => p.position === 'Bowler' || p.position === 'All-rounder');
-    if (batters.length === 0) return message.reply('❌ You need at least 1 batter/all-rounder in your squad before accepting!');
-    if (bowlers.length === 0) return message.reply('❌ You need at least 1 bowler/all-rounder in your squad before accepting!');
-
-    cricket.initializeUser(challenge.challengerId, challenge.challengerName);
-    cricket.removeChallenge(userId);
-
-    const duel = cricket.createDuel(
-      challenge.challengerId, challenge.challengerName,
-      userId, message.author.username,
-      challenge.format
-    );
-
-    duel.channelId = message.channelId;
-    cricket.saveData();
-
-    const tossWinnerName = duel.players[duel.tossWinner].username;
-    const tossEmbed = new EmbedBuilder()
-      .setColor('#1f8b4c')
-      .setTitle('🏏 Match Accepted! Coin Toss')
-      .addFields(
-        { name: 'Match', value: `${challenge.challengerName} vs ${message.author.username}` },
-        { name: 'Format', value: `${challenge.format.toUpperCase()} (${duel.overs} overs)` },
-        { name: '🪙 Toss Result', value: `**${tossWinnerName}** won the toss!` },
-        { name: 'Next Step', value: `${tossWinnerName}, use \`rctoss bat\` or \`rctoss bowl\`` }
-      );
-    message.reply({ embeds: [tossEmbed] });
-  }
-
-  else if (command === 'rcdecline') {
-    const challenge = cricket.getChallenge(userId);
-    if (!challenge) return message.reply('❌ No pending challenge to decline.');
-    cricket.removeChallenge(userId);
-    message.reply(`❌ Challenge from **${challenge.challengerName}** declined.`);
-  }
-
-  else if (command === 'rctoss') {
-    cricket.initializeUser(userId, message.author.username);
-    const soloMatch = cricket.getCurrentMatch(userId);
-    if (soloMatch && soloMatch.status === 'toss') {
-      const choice = (args[1] || '').toLowerCase();
-      if (soloMatch.tossWinner !== 'user') {
-        return message.reply(`❌ ${soloMatch.aiTeamName} won the toss, so you cannot choose here.`);
-      }
-      if (!['bat', 'bowl'].includes(choice)) {
-        return message.reply('❌ Choose `rctoss bat` or `rctoss bowl`.');
-      }
-
-      const result = cricket.setSoloTossChoice(soloMatch.matchId, choice);
-      if (!result.success) {
-        return message.reply(`❌ ${result.message}`);
-      }
-
-      return message.reply(buildSoloMatchPayload(result.match, 'Toss Complete'));
-    }
-
-    const duel = cricket.getUserActiveDuel(userId);
-    if (!duel) return message.reply('❌ No active match! Start one with `rcchallenge @user`.');
-    if (duel.status !== 'toss') return message.reply('❌ Toss already done.');
-    if (duel.tossWinner !== userId) {
-      return message.reply(`❌ You didn't win the toss! Wait for **${duel.players[duel.tossWinner].username}** to choose.`);
-    }
-
-    const choice = (args[1] || '').toLowerCase();
-    if (!['bat', 'bowl'].includes(choice)) return message.reply('❌ Choose `rctoss bat` or `rctoss bowl`.');
-
-    const updated = cricket.setTossChoice(duel.duelId, choice);
-    const battingUser = updated.players[updated.battingTeam].username;
-    const bowlingUser = updated.players[updated.bowlingTeam].username;
-
-    const selectEmbed = new EmbedBuilder()
-      .setColor('#1f8b4c')
-      .setTitle('🏏 Innings 1 — Player Selection')
-      .addFields(
-        { name: '🏏 Batting', value: battingUser },
-        { name: '🎳 Bowling', value: bowlingUser },
-        { name: `${battingUser}`, value: 'Use `rcsetbatter [squad number]` to pick your batter' },
-        { name: `${bowlingUser}`, value: 'Use `rcsetbowler [squad number]` to pick your bowler' }
-      );
-    message.reply({ embeds: [selectEmbed] });
-  }
-
-  else if (command === 'rcsetbatter') {
-    cricket.initializeUser(userId, message.author.username);
-    const duel = cricket.getUserActiveDuel(userId);
-    if (!duel) return message.reply('❌ No active match!');
-    if (duel.battingTeam !== userId) return message.reply('❌ You are not batting right now.');
-
-    const num = parseInt(args[1]);
-    const squad = cricket.getSquad(userId);
-    const batters = squad.filter(p => p.position === 'Batsman' || p.position === 'All-rounder');
-
-    if (!num || num < 1 || num > batters.length) {
-      let list = `**Your Batters/All-rounders:**\n`;
-      batters.forEach((p, i) => { list += `${i + 1}. **${p.name}** (${p.country}) | ⭐ ${p.rating}\n`; });
-      return message.reply(list + '\nUsage: `rcsetbatter [number]`');
-    }
-
-    const result = cricket.setActiveBatter(duel.duelId, userId, batters[num - 1].id);
-    if (!result.success) return message.reply(`❌ ${result.message}`);
-
-    message.reply(`✅ **${result.card.name}** (⭐ ${result.card.rating}) is now your active batter!${duel.currentBowler ? '\n\n⚡ Both players ready — match is LIVE! Use `rcshot [aggressive/defensive/loft/sweep]`' : '\nWaiting for bowler to be set...'}`);
-  }
-
-  else if (command === 'rcsetbowler') {
-    cricket.initializeUser(userId, message.author.username);
-    const duel = cricket.getUserActiveDuel(userId);
-    if (!duel) return message.reply('❌ No active match!');
-    if (duel.bowlingTeam !== userId) return message.reply('❌ You are not bowling right now.');
-
-    const num = parseInt(args[1]);
-    const squad = cricket.getSquad(userId);
-    const bowlers = squad.filter(p => p.position === 'Bowler' || p.position === 'All-rounder');
-
-    if (!num || num < 1 || num > bowlers.length) {
-      let list = `**Your Bowlers/All-rounders:**\n`;
-      bowlers.forEach((p, i) => { list += `${i + 1}. **${p.name}** (${p.country}) | ⭐ ${p.rating}\n`; });
-      return message.reply(list + '\nUsage: `rcsetbowler [number]`');
-    }
-
-    const result = cricket.setActiveBowler(duel.duelId, userId, bowlers[num - 1].id);
-    if (!result.success) return message.reply(`❌ ${result.message}`);
-
-    message.reply(`✅ **${result.card.name}** (⭐ ${result.card.rating}) is now your active bowler!${duel.currentBatter ? '\n\n⚡ Both players ready — match is LIVE! Use `rcbowl [fast/spin/yorker/bouncer]`' : '\nWaiting for batter to be set...'}`);
-  }
-
-  else if (command === 'rcshot') {
-    cricket.initializeUser(userId, message.author.username);
-    const duel = cricket.getUserActiveDuel(userId);
-    if (!duel) return message.reply('❌ No active match!');
-
-    const shot = (args[1] || '').toLowerCase();
-    const result = cricket.submitShot(duel.duelId, userId, shot);
-
-    if (!result.success) return message.reply(`❌ ${result.message}`);
-
-    if (result.waiting) {
-      return message.reply(`🏏 Shot locked in: **${shot}**! Waiting for bowler's delivery...`);
-    }
-
-    // Ball resolved
-    await handleBallResult(message, result, duel.duelId);
-  }
-
-  else if (command === 'rcbowl') {
-    cricket.initializeUser(userId, message.author.username);
-    const soloMatch = cricket.getCurrentMatch(userId);
-    if (soloMatch && soloMatch.status === 'live') {
-      const soloInnings = soloMatch.innings[soloMatch.currentInnings];
-      if (soloInnings.battingSide !== 'ai') {
-        return message.reply('❌ You are batting this innings. Use the batting buttons or `rcbat` / `rcdefend`.');
-      }
-
-      const delivery = (args[1] || '').toLowerCase();
-      const result = cricket.playBall(soloMatch.matchId, delivery);
-      if (!result || !result.success) {
-        return message.reply(`❌ ${result?.message || 'This match is no longer active. Start a new one with `rcplay`.'}`);
-      }
-
-      return message.reply(buildSoloBallPayload(result));
-    }
-    if (soloMatch && soloMatch.status === 'completed') {
-      return message.reply(buildSoloScorecardPayload(soloMatch));
-    }
-
-    const duel = cricket.getUserActiveDuel(userId);
-    if (!duel) return message.reply('❌ No active match!');
-
-    const delivery = (args[1] || '').toLowerCase();
-    const result = cricket.submitDelivery(duel.duelId, userId, delivery);
-
-    if (!result.success) return message.reply(`❌ ${result.message}`);
-
-    if (result.waiting) {
-      return message.reply(`🎳 Delivery locked in: **${delivery}**! Waiting for batter's shot...`);
-    }
-
-    // Ball resolved
-    await handleBallResult(message, result, duel.duelId);
-  }
-
-  else if (command === 'rcduelstatus') {
-    cricket.initializeUser(userId, message.author.username);
-    const duel = cricket.getUserActiveDuel(userId);
-    if (!duel) return message.reply('❌ No active 1v1 match!');
-
-    const p1 = duel.teamA ? duel.players[duel.teamA] : duel.players[duel.tossWinner];
-    const p2 = duel.teamB ? duel.players[duel.teamB] : duel.players[duel.tossLoser];
-    const battingName = duel.battingTeam ? duel.players[duel.battingTeam].username : 'TBD';
-    const bowlingName = duel.bowlingTeam ? duel.players[duel.bowlingTeam].username : 'TBD';
-
-    const statusEmbed = new EmbedBuilder()
-      .setColor('#1f8b4c')
-      .setTitle('📋 1v1 Match Status')
-      .addFields(
-        { name: 'Match', value: `${p1.username} vs ${p2.username}`, inline: false },
-        { name: 'Format', value: `${duel.format.toUpperCase()} (${duel.overs} overs)`, inline: true },
-        { name: 'Status', value: duel.status.charAt(0).toUpperCase() + duel.status.slice(1), inline: true },
-        { name: `Innings 1 — ${p1.username}`, value: cricket.formatScore(duel, 1), inline: true },
-        { name: `Innings 2 — ${p2.username}`, value: duel.innings === 2 ? cricket.formatScore(duel, 2) : 'Not started', inline: true },
-        { name: '🏏 Batting', value: `${battingName}${duel.currentBatter ? ` — ${duel.currentBatter.name} (⭐${duel.currentBatter.rating})` : ' — not set'}`, inline: false },
-        { name: '🎳 Bowling', value: `${bowlingName}${duel.currentBowler ? ` — ${duel.currentBowler.name} (⭐${duel.currentBowler.rating})` : ' — not set'}`, inline: false },
-      );
-
-    if (duel.status === 'completed') {
-      const winnerName = duel.winner === 'tie' ? 'Tie!' : duel.players[duel.winner].username;
-      statusEmbed.addFields({ name: '🏆 Result', value: duel.winner === 'tie' ? "It's a tie!" : `**${winnerName}** won!` });
-    }
-
-    message.reply({ embeds: [statusEmbed] });
+    message.reply({ embeds: [embed], components: [row] });
   }
 
   // ── END 1v1 DUEL COMMANDS ──────────────────────────────────────
@@ -1148,64 +876,464 @@ client.on('messageCreate', async (message) => {
   }
 });
 
+// ── DUEL BUTTON BUILDERS ────────────────────────────────────────
+
+function buildPlayerSelectButtons(duelId, action, players) {
+  const rows = [];
+  for (let i = 0; i < Math.min(players.length, 10); i += 5) {
+    const chunk = players.slice(i, i + 5);
+    rows.push(new ActionRowBuilder().addComponents(
+      chunk.map((p, j) =>
+        new ButtonBuilder()
+          .setCustomId(`duel:${action}:${duelId}:${i + j}`)
+          .setLabel(`${p.name} ⭐${p.rating}`)
+          .setStyle(ButtonStyle.Primary)
+      )
+    ));
+  }
+  return rows;
+}
+
+function buildShotButtons(duelId) {
+  return [new ActionRowBuilder().addComponents(
+    new ButtonBuilder().setCustomId(`duel:shot:${duelId}:cover_drive`).setLabel('Cover Drive').setStyle(ButtonStyle.Primary),
+    new ButtonBuilder().setCustomId(`duel:shot:${duelId}:pull`).setLabel('Pull').setStyle(ButtonStyle.Primary),
+    new ButtonBuilder().setCustomId(`duel:shot:${duelId}:sweep`).setLabel('Sweep').setStyle(ButtonStyle.Success),
+    new ButtonBuilder().setCustomId(`duel:shot:${duelId}:loft`).setLabel('Loft 🚀').setStyle(ButtonStyle.Danger)
+  )];
+}
+
+function buildDeliveryButtons(duelId) {
+  return [new ActionRowBuilder().addComponents(
+    new ButtonBuilder().setCustomId(`duel:delivery:${duelId}:yorker`).setLabel('Yorker').setStyle(ButtonStyle.Danger),
+    new ButtonBuilder().setCustomId(`duel:delivery:${duelId}:bouncer`).setLabel('Bouncer').setStyle(ButtonStyle.Danger),
+    new ButtonBuilder().setCustomId(`duel:delivery:${duelId}:full`).setLabel('Full Toss').setStyle(ButtonStyle.Primary),
+    new ButtonBuilder().setCustomId(`duel:delivery:${duelId}:short`).setLabel('Short Ball').setStyle(ButtonStyle.Secondary)
+  )];
+}
+
+function buildDisabledShotButtons(duelId, chosen) {
+  return [new ActionRowBuilder().addComponents(
+    ['cover_drive','pull','sweep','loft'].map(s =>
+      new ButtonBuilder()
+        .setCustomId(`duel:shot:${duelId}:${s}`)
+        .setLabel(s === 'cover_drive' ? 'Cover Drive' : s === 'loft' ? 'Loft 🚀' : s.charAt(0).toUpperCase() + s.slice(1))
+        .setStyle(s === chosen ? ButtonStyle.Success : ButtonStyle.Secondary)
+        .setDisabled(true)
+    )
+  )];
+}
+
+function buildDisabledDeliveryButtons(duelId, chosen) {
+  return [new ActionRowBuilder().addComponents(
+    ['yorker','bouncer','full','short'].map(d =>
+      new ButtonBuilder()
+        .setCustomId(`duel:delivery:${duelId}:${d}`)
+        .setLabel(d === 'full' ? 'Full Toss' : d === 'short' ? 'Short Ball' : d.charAt(0).toUpperCase() + d.slice(1))
+        .setStyle(d === chosen ? ButtonStyle.Success : ButtonStyle.Secondary)
+        .setDisabled(true)
+    )
+  )];
+}
+
+async function postLiveBallMessage(channel, duel) {
+  const batterId = duel.battingTeam;
+  const bowlerId = duel.bowlingTeam;
+  const batter   = duel.currentBatter;
+  const bowler   = duel.currentBowler;
+  const inn      = duel.inningsData[duel.innings];
+  const score    = cricket.formatScore(duel, duel.innings);
+  const pp       = cricket.isPowerplay(duel);
+  const rrr      = cricket.getRequiredRunRate(duel);
+  const overNum  = Math.floor(inn.balls / 6);
+  const ballNum  = inn.balls % 6;
+
+  const recentBalls = inn.ballLog.slice(-6).map(b =>
+    b.isWicket ? '🔴W' : b.runs === 6 ? '6️⃣' : b.runs === 4 ? '4️⃣' : b.runs === 0 ? '⚫' : `${b.runs}`
+  ).join(' ') || '—';
+
+  const embed = new EmbedBuilder()
+    .setColor(pp ? '#FFD700' : '#1f8b4c')
+    .setTitle(`${pp ? '⚡ POWERPLAY — ' : ''}🏏 Innings ${duel.innings} | Over ${overNum}.${ballNum}`)
+    .addFields(
+      { name: '📊 Score', value: score, inline: true },
+      { name: '🏏 Batting', value: `<@${batterId}>`, inline: true },
+      { name: '🎳 Bowling', value: `<@${bowlerId}>`, inline: true },
+      { name: 'On Strike', value: batter ? `**${batter.name}** ⭐${batter.rating}` : 'TBD', inline: true },
+      { name: 'Bowler', value: bowler ? `**${bowler.name}** ⭐${bowler.rating}` : 'TBD', inline: true },
+      { name: 'Last 6 Balls', value: recentBalls, inline: true },
+    );
+
+  if (rrr) embed.addFields({ name: '🎯 Chase', value: `Need **${rrr.needed}** off **${Math.floor(rrr.ballsLeft/6)}.${rrr.ballsLeft%6}** overs | RRR: **${rrr.rrr}**` });
+  embed.setFooter({ text: 'Both players pick simultaneously — choices hidden until both submit!' });
+
+  const batterMsg = await channel.send({
+    content: `<@${batterId}> — **🏏 Play your shot:**`,
+    embeds: [embed],
+    components: buildShotButtons(duel.duelId),
+  });
+  const bowlerMsg = await channel.send({
+    content: `<@${bowlerId}> — **🎳 Bowl your delivery:**`,
+    components: buildDeliveryButtons(duel.duelId),
+  });
+
+  duel.batterMsgId = batterMsg.id;
+  duel.bowlerMsgId = bowlerMsg.id;
+  cricket.saveData();
+}
+
+async function postBallResult(channel, result, duelId) {
+  const { shot, delivery, runs, isWicket, commentary, milestones, inn, inningsSwitched, matchOver, duel, batterRating, bowlerRating, batterName, bowlerName } = result;
+
+  const color = isWicket ? '#dc143c' : runs === 6 ? '#FFD700' : runs === 4 ? '#1f8b4c' : '#4a90d9';
+  const title = isWicket ? '🔴 WICKET!' : runs === 6 ? '🏏 SIX!' : runs === 4 ? '🏏 FOUR!' : runs === 0 ? '⚫ Dot Ball' : `✅ ${runs} Run${runs !== 1 ? 's' : ''}`;
+
+  const embed = new EmbedBuilder()
+    .setColor(color)
+    .setTitle(title)
+    .setDescription(commentary || '')
+    .addFields(
+      { name: '🏏 Shot', value: cricket.SHOT_LABELS[shot], inline: true },
+      { name: '🎳 Delivery', value: cricket.DELIVERY_LABELS[delivery], inline: true },
+      { name: '\u200b', value: '\u200b', inline: true },
+      { name: 'Batter', value: `${batterName || '?'} ⭐${batterRating}`, inline: true },
+      { name: 'Bowler', value: `${bowlerName || '?'} ⭐${bowlerRating}`, inline: true },
+      { name: '\u200b', value: '\u200b', inline: true },
+      { name: '📊 Score', value: `${inn.runs}/${inn.wickets} (${Math.floor(inn.balls/6)}.${inn.balls%6} ov)` },
+    );
+
+  if (milestones && milestones.length > 0) embed.addFields({ name: '🌟 Milestone!', value: milestones.join('\n') });
+
+  if (matchOver) {
+    const fd = cricket.getDuel(duelId);
+    const winnerName = fd.winner === 'tie' ? null : fd.players[fd.winner].username;
+    embed.addFields(
+      { name: '🏁 MATCH OVER', value: fd.winner === 'tie' ? "🤝 It's a Tie!" : `🏆 **${winnerName}** wins!` },
+      { name: `${fd.players[fd.teamA].username} (Inn 1)`, value: cricket.formatScore(fd, 1), inline: true },
+      { name: `${fd.players[fd.teamB].username} (Inn 2)`, value: cricket.formatScore(fd, 2), inline: true },
+      { name: 'Rewards', value: winnerName ? `**${winnerName}** +200 🪙 | Loser +50 🪙` : 'Both +75 🪙 (tie)' },
+    );
+    await channel.send({ embeds: [embed] });
+    const sc1 = cricket.formatDuelScorecard(fd, 1);
+    const sc2 = cricket.formatDuelScorecard(fd, 2);
+    const chunks = (`**📋 FULL SCORECARD**\n\n${sc1}\n\n${sc2}`).match(/[\s\S]{1,1900}/g) || [];
+    for (const chunk of chunks) await channel.send(chunk);
+
+  } else if (inningsSwitched) {
+    const fd = cricket.getDuel(duelId);
+    const target = fd.inningsData[1].runs + 1;
+    embed.addFields(
+      { name: '🔄 INNINGS BREAK!', value: `Target: **${target} runs** in ${fd.overs} overs` },
+      { name: '🏏 Now Batting', value: `<@${fd.battingTeam}>`, inline: true },
+      { name: '🎳 Now Bowling', value: `<@${fd.bowlingTeam}>`, inline: true },
+    );
+    await channel.send({ embeds: [embed] });
+    const sc1 = cricket.formatDuelScorecard(fd, 1);
+    const chunks = (`**📋 Innings 1 Scorecard**\n\n${sc1}`).match(/[\s\S]{1,1900}/g) || [];
+    for (const chunk of chunks) await channel.send(chunk);
+
+    const bMsg = await channel.send({ content: `<@${fd.battingTeam}> — **Select your opening batter for Innings 2:**`, components: buildPlayerSelectButtons(fd.duelId, 'selbat', cricket.getDuelEligible(fd.battingTeam, 'bat')) });
+    const wMsg = await channel.send({ content: `<@${fd.bowlingTeam}> — **Select your opening bowler for Innings 2:**`, components: buildPlayerSelectButtons(fd.duelId, 'selbowl', cricket.getDuelEligible(fd.bowlingTeam, 'bowl')) });
+    fd.batterMsgId = bMsg.id; fd.bowlerMsgId = wMsg.id;
+    cricket.saveData();
+
+  } else {
+    await channel.send({ embeds: [embed] });
+    const fd = cricket.getDuel(duelId);
+
+    // After wicket — prompt new batter
+    if (isWicket) {
+      const eligible = cricket.getDuelEligible(fd.battingTeam, 'bat');
+      if (eligible.length > 0) {
+        const bMsg = await channel.send({ content: `<@${fd.battingTeam}> — **🏏 Select your next batter:**`, components: buildPlayerSelectButtons(fd.duelId, 'selbat', eligible) });
+        fd.batterMsgId = bMsg.id; cricket.saveData();
+        return;
+      }
+    }
+
+    // After over — prompt new bowler
+    const justCompletedOver = fd.inningsData[fd.innings].balls % 6 === 0 && fd.inningsData[fd.innings].balls > 0;
+    if (justCompletedOver) {
+      const eligible = cricket.getDuelEligible(fd.bowlingTeam, 'bowl');
+      const wMsg = await channel.send({ content: `<@${fd.bowlingTeam}> — **🎳 Select your bowler for the next over:**`, components: buildPlayerSelectButtons(fd.duelId, 'selbowl', eligible) });
+      fd.bowlerMsgId = wMsg.id; cricket.saveData();
+      return;
+    }
+
+    await postLiveBallMessage(channel, fd);
+  }
+}
+
+// Timeout checker — auto-play if a player goes AFK (runs every 30s)
+setInterval(async () => {
+  if (!cricket.cricketData.duels) return;
+  for (const duel of Object.values(cricket.cricketData.duels)) {
+    if (duel.status !== 'live') continue;
+    if (!duel.lastBallTime) continue;
+    if (Date.now() - duel.lastBallTime < 60000) continue;
+
+    const result = cricket.autoPlayTimeout(duel.duelId);
+    if (!result || !result.success) continue;
+
+    if (!duel.channelId) continue;
+    const channel = client.channels.cache.get(duel.channelId);
+    if (!channel) continue;
+
+    const timedOutId = result.timedOutRole === 'bowler' ? duel.bowlingTeam : duel.battingTeam;
+    await channel.send(`⏱️ <@${timedOutId}> took too long — auto-played!`);
+    await postBallResult(channel, result, duel.duelId);
+  }
+}, 30000);
+
 client.on('interactionCreate', async (interaction) => {
   if (!interaction.isButton()) return;
 
-  const [scope, action, value] = interaction.customId.split(':');
-  if (scope !== 'solo') return;
+  const parts = interaction.customId.split(':');
+  const scope = parts[0];
 
-  cricket.initializeUser(interaction.user.id, interaction.user.username);
-  const match = cricket.getCurrentMatch(interaction.user.id);
-  if (!match) {
-    return interaction.reply({ content: 'No active solo match found. Start one with `rcplay`.', ephemeral: true });
+  // ── SOLO MATCH BUTTONS ──────────────────────────────────────
+  if (scope === 'solo') {
+    const [, action, value] = parts;
+    cricket.initializeUser(interaction.user.id, interaction.user.username);
+    const match = cricket.getCurrentMatch(interaction.user.id);
+    if (!match) return interaction.reply({ content: 'No active solo match. Start one with `rcplay`.', ephemeral: true });
+
+    if (action === 'scorecard') return interaction.update(buildSoloScorecardPayload(match));
+
+    if (action === 'toss') {
+      if (match.status !== 'toss') return interaction.reply({ content: 'Toss already done.', ephemeral: true });
+      if (match.tossWinner !== 'user') return interaction.reply({ content: 'You did not win the toss.', ephemeral: true });
+      const r = cricket.setSoloTossChoice(match.matchId, value);
+      if (!r.success) return interaction.reply({ content: r.message, ephemeral: true });
+      return interaction.update(buildSoloMatchPayload(r.match, 'Toss Complete'));
+    }
+
+    if (action === 'bat') {
+      const inn = match.innings[match.currentInnings];
+      if (match.status !== 'live' || inn.battingSide !== 'user')
+        return interaction.reply({ content: 'You are not batting right now.', ephemeral: true });
+      const r = cricket.playBall(match.matchId, value);
+      if (!r || !r.success) return interaction.reply({ content: r?.message || 'Error.', ephemeral: true });
+      return interaction.update(buildSoloBallPayload(r));
+    }
+
+    if (action === 'bowl') {
+      const inn = match.innings[match.currentInnings];
+      if (match.status !== 'live' || inn.battingSide !== 'ai')
+        return interaction.reply({ content: 'You are not bowling right now.', ephemeral: true });
+      const r = cricket.playBall(match.matchId, value);
+      if (!r || !r.success) return interaction.reply({ content: r?.message || 'Error.', ephemeral: true });
+      return interaction.update(buildSoloBallPayload(r));
+    }
+    return;
   }
 
-  if (action === 'scorecard') {
-    return interaction.update(buildSoloScorecardPayload(match));
-  }
+  // ── 1v1 DUEL BUTTONS ────────────────────────────────────────
+  if (scope === 'duel') {
+    const action = parts[1];
+    const extra  = parts[2]; // challengerId or duelId depending on action
+    const userId = interaction.user.id;
+    cricket.initializeUser(userId, interaction.user.username);
 
-  if (action === 'toss') {
-    if (match.status !== 'toss') {
-      return interaction.reply({ content: 'The toss is already complete.', ephemeral: true });
+    // ── Accept / Decline challenge ──
+    if (action === 'accept') {
+      const challengerId = extra;
+      const challenge = cricket.getChallenge(userId);
+      if (!challenge || challenge.challengerId !== challengerId)
+        return interaction.reply({ content: '❌ This challenge is no longer valid.', ephemeral: true });
+      if (userId === challengerId)
+        return interaction.reply({ content: '❌ You cannot accept your own challenge.', ephemeral: true });
+
+      const squad = cricket.getSquad(userId);
+      if (!squad.some(p => p.position === 'Batsman' || p.position === 'All-rounder'))
+        return interaction.reply({ content: '❌ You need at least 1 batter/all-rounder in your squad!', ephemeral: true });
+      if (!squad.some(p => p.position === 'Bowler' || p.position === 'All-rounder'))
+        return interaction.reply({ content: '❌ You need at least 1 bowler/all-rounder in your squad!', ephemeral: true });
+      if (cricket.getUserActiveDuel(userId))
+        return interaction.reply({ content: '❌ You are already in an active match!', ephemeral: true });
+
+      cricket.initializeUser(challenge.challengerId, challenge.challengerName);
+      cricket.removeChallenge(userId);
+      const duel = cricket.createDuel(challenge.challengerId, challenge.challengerName, userId, interaction.user.username, challenge.format);
+      duel.channelId = interaction.channelId;
+      cricket.saveData();
+
+      const tossWinnerName = duel.players[duel.tossWinner].username;
+      const tossLoserId = duel.tossLoser;
+      const tossWinnerId = duel.tossWinner;
+
+      const tossRow = new ActionRowBuilder().addComponents(
+        new ButtonBuilder().setCustomId(`duel:toss:${duel.duelId}:bat`).setLabel('🏏 Bat First').setStyle(ButtonStyle.Primary),
+        new ButtonBuilder().setCustomId(`duel:toss:${duel.duelId}:bowl`).setLabel('🎳 Bowl First').setStyle(ButtonStyle.Secondary)
+      );
+
+      const tossEmbed = new EmbedBuilder()
+        .setColor('#1f8b4c')
+        .setTitle('🪙 Coin Toss!')
+        .addFields(
+          { name: 'Match', value: `${challenge.challengerName} vs ${interaction.user.username}` },
+          { name: 'Format', value: `${challenge.format.toUpperCase()} (${duel.overs} overs)` },
+          { name: 'Toss Winner', value: `🎉 **${tossWinnerName}** won the toss!` },
+          { name: 'Next', value: `<@${tossWinnerId}>, choose to bat or bowl first.` }
+        );
+
+      await interaction.update({ embeds: [tossEmbed], components: [tossRow] });
+      return;
     }
-    if (match.tossWinner !== 'user') {
-      return interaction.reply({ content: 'You did not win this toss.', ephemeral: true });
+
+    if (action === 'decline') {
+      const challengerId = extra;
+      const challenge = cricket.getChallenge(userId);
+      if (!challenge || challenge.challengerId !== challengerId)
+        return interaction.reply({ content: '❌ Challenge already expired.', ephemeral: true });
+      cricket.removeChallenge(userId);
+      const declineEmbed = new EmbedBuilder().setColor('#dc143c').setTitle('❌ Challenge Declined')
+        .setDescription(`**${interaction.user.username}** declined the challenge.`);
+      return interaction.update({ embeds: [declineEmbed], components: [] });
     }
 
-    const tossResult = cricket.setSoloTossChoice(match.matchId, value);
-    if (!tossResult.success) {
-      return interaction.reply({ content: tossResult.message, ephemeral: true });
+    // ── Toss choice ──
+    if (action === 'toss') {
+      const duelId = extra;
+      const choice = parts[3]; // bat or bowl
+      const duel = cricket.getDuel(duelId);
+      if (!duel) return interaction.reply({ content: '❌ Match not found.', ephemeral: true });
+      if (duel.tossWinner !== userId) return interaction.reply({ content: '❌ You did not win the toss!', ephemeral: true });
+      if (duel.status !== 'toss') return interaction.reply({ content: '❌ Toss already done.', ephemeral: true });
+
+      cricket.setTossChoice(duelId, choice);
+      const batterId = duel.battingTeam;
+      const bowlerId = duel.bowlingTeam;
+      const batterName = duel.players[batterId].username;
+      const bowlerName = duel.players[bowlerId].username;
+
+      // Build batter selection buttons (up to 5 per row)
+      const batterEligible = cricket.getDuelEligible(batterId, 'bat');
+      const bowlerEligible = cricket.getDuelEligible(bowlerId, 'bowl');
+
+      const batterRows = buildPlayerSelectButtons(duelId, 'selbat', batterEligible);
+      const bowlerRows = buildPlayerSelectButtons(duelId, 'selbowl', bowlerEligible);
+
+      const selEmbed = new EmbedBuilder()
+        .setColor('#1f8b4c')
+        .setTitle('🏏 Player Selection')
+        .addFields(
+          { name: '🏏 Batting', value: `<@${batterId}> — pick your opening batter below` },
+          { name: '🎳 Bowling', value: `<@${bowlerId}> — pick your opening bowler below` },
+          { name: 'Innings 1 Target', value: `${duel.overs} overs` }
+        );
+
+      // Send two separate ephemeral-style messages for each player, but post publicly
+      await interaction.update({ embeds: [selEmbed], components: [] });
+
+      // Post batter selection for batting team
+      const batterMsg = await interaction.channel.send({
+        content: `<@${batterId}> — **Select your batter:**`,
+        components: batterRows
+      });
+      // Post bowler selection for bowling team
+      const bowlerMsg = await interaction.channel.send({
+        content: `<@${bowlerId}> — **Select your bowler:**`,
+        components: bowlerRows
+      });
+
+      duel.batterMsgId = batterMsg.id;
+      duel.bowlerMsgId = bowlerMsg.id;
+      cricket.saveData();
+      return;
     }
 
-    return interaction.update(buildSoloMatchPayload(tossResult.match, 'Toss Complete'));
-  }
+    // ── Batter selection ──
+    if (action === 'selbat') {
+      const duelId = extra;
+      const idx = parseInt(parts[3]);
+      const duel = cricket.getDuel(duelId);
+      if (!duel) return interaction.reply({ content: '❌ Match not found.', ephemeral: true });
+      if (duel.battingTeam !== userId) return interaction.reply({ content: '❌ Only the batting team can pick a batter.', ephemeral: true });
 
-  if (action === 'bat') {
-    const innings = match.innings[match.currentInnings];
-    if (match.status !== 'live' || innings.battingSide !== 'user') {
-      return interaction.reply({ content: 'You are not batting right now.', ephemeral: true });
+      const result = cricket.selectBatter(duelId, userId, idx);
+      if (!result.success) return interaction.reply({ content: `❌ ${result.message}`, ephemeral: true });
+
+      await interaction.update({
+        content: `✅ **${result.card.name}** (⭐ ${result.card.rating}) selected as batter!`,
+        components: []
+      });
+
+      if (duel.status === 'live') {
+        await postLiveBallMessage(interaction.channel, duel);
+      }
+      return;
     }
 
-    const ballResult = cricket.playBall(match.matchId, value);
-    if (!ballResult || !ballResult.success) {
-      return interaction.reply({ content: ballResult?.message || 'Unable to play that ball.', ephemeral: true });
+    // ── Bowler selection ──
+    if (action === 'selbowl') {
+      const duelId = extra;
+      const idx = parseInt(parts[3]);
+      const duel = cricket.getDuel(duelId);
+      if (!duel) return interaction.reply({ content: '❌ Match not found.', ephemeral: true });
+      if (duel.bowlingTeam !== userId) return interaction.reply({ content: '❌ Only the bowling team can pick a bowler.', ephemeral: true });
+
+      const result = cricket.selectBowler(duelId, userId, idx);
+      if (!result.success) return interaction.reply({ content: `❌ ${result.message}`, ephemeral: true });
+
+      await interaction.update({
+        content: `✅ **${result.card.name}** (⭐ ${result.card.rating}) selected as bowler!`,
+        components: []
+      });
+
+      if (duel.status === 'live') {
+        await postLiveBallMessage(interaction.channel, duel);
+      }
+      return;
     }
 
-    return interaction.update(buildSoloBallPayload(ballResult));
-  }
+    // ── Shot selection (batter) ──
+    if (action === 'shot') {
+      const duelId = extra;
+      const shot = parts[3];
+      const duel = cricket.getDuel(duelId);
+      if (!duel) return interaction.reply({ content: '❌ Match not found.', ephemeral: true });
+      if (duel.battingTeam !== userId) return interaction.reply({ content: '❌ You are not batting!', ephemeral: true });
+      if (duel.pendingShot) return interaction.reply({ content: '⏳ Shot already locked in! Waiting for bowler.', ephemeral: true });
 
-  if (action === 'bowl') {
-    const innings = match.innings[match.currentInnings];
-    if (match.status !== 'live' || innings.battingSide !== 'ai') {
-      return interaction.reply({ content: 'You are not bowling right now.', ephemeral: true });
+      const result = cricket.submitShot(duelId, userId, shot);
+      if (!result.success) return interaction.reply({ content: `❌ ${result.message}`, ephemeral: true });
+
+      // Disable the shot buttons to show locked in
+      await interaction.update({
+        content: `🏏 **${cricket.SHOT_LABELS[shot]}** locked in! Waiting for bowler...`,
+        components: buildDisabledShotButtons(duelId, shot)
+      });
+
+      if (!result.waiting) {
+        // Both submitted — resolve and post result
+        await postBallResult(interaction.channel, result, duelId);
+      }
+      return;
     }
 
-    const ballResult = cricket.playBall(match.matchId, value);
-    if (!ballResult || !ballResult.success) {
-      return interaction.reply({ content: ballResult?.message || 'Unable to bowl that ball.', ephemeral: true });
-    }
+    // ── Delivery selection (bowler) ──
+    if (action === 'delivery') {
+      const duelId = extra;
+      const delivery = parts[3];
+      const duel = cricket.getDuel(duelId);
+      if (!duel) return interaction.reply({ content: '❌ Match not found.', ephemeral: true });
+      if (duel.bowlingTeam !== userId) return interaction.reply({ content: '❌ You are not bowling!', ephemeral: true });
+      if (duel.pendingDelivery) return interaction.reply({ content: '⏳ Delivery already locked in! Waiting for batter.', ephemeral: true });
 
-    return interaction.update(buildSoloBallPayload(ballResult));
+      const result = cricket.submitDelivery(duelId, userId, delivery);
+      if (!result.success) return interaction.reply({ content: `❌ ${result.message}`, ephemeral: true });
+
+      await interaction.update({
+        content: `🎳 **${cricket.DELIVERY_LABELS[delivery]}** locked in! Waiting for batter...`,
+        components: buildDisabledDeliveryButtons(duelId, delivery)
+      });
+
+      if (!result.waiting) {
+        await postBallResult(interaction.channel, result, duelId);
+      }
+      return;
+    }
   }
 });
 

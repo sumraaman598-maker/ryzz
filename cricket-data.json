@@ -1,237 +1,307 @@
 {
   "users": {
-    "1078721777980669983": {
-      "username": "riyaz_msdian",
+    "test_1776340820993": {
+      "username": "Player",
       "team": [],
-      "stats": {
-        "matches": 0,
-        "wins": 0,
-        "runs": 0,
-        "wickets": 0,
-        "coins": 1500
-      },
-      "cards": [
+      "squad": [
         {
-          "id": "card_1776245621225_0",
-          "name": "Player 1",
+          "id": "card_1776340820996_6a57bq",
+          "name": "Ambati Rayudu",
+          "country": "India",
           "position": "Batsman",
+          "role": "Right-handed Bat",
+          "tier": "silver",
           "level": 1,
-          "rating": 91
+          "rating": 76
         },
         {
-          "id": "card_1776245621225_1",
-          "name": "Player 2",
+          "id": "card_1776340820996_a6uk6q",
+          "name": "Zak Crawley",
+          "country": "England",
           "position": "Batsman",
-          "level": 1,
-          "rating": 77
-        },
-        {
-          "id": "card_1776245621225_2",
-          "name": "Player 3",
-          "position": "All-rounder",
+          "role": "Right-handed Bat",
+          "tier": "silver",
           "level": 1,
           "rating": 78
         },
         {
-          "id": "card_1776245621225_3",
-          "name": "Player 4",
+          "id": "card_1776340820996_byn2bg",
+          "name": "Arjuna Ranatunga",
+          "country": "Sri Lanka",
           "position": "Batsman",
+          "role": "Left-handed Bat",
+          "tier": "silver",
           "level": 1,
-          "rating": 50
+          "rating": 78
         },
         {
-          "id": "card_1776245621225_4",
-          "name": "Player 5",
+          "id": "card_1776340820996_3w153d",
+          "name": "Asghar Afghan",
+          "country": "Afghanistan",
           "position": "Batsman",
+          "role": "Right-handed Bat",
+          "tier": "silver",
           "level": 1,
-          "rating": 51
+          "rating": 76
         },
         {
-          "id": "card_1776246220171_0.24751253977298548",
+          "id": "card_1776340820996_5xkp9m",
+          "name": "Sourav Ganguly",
+          "country": "India",
+          "position": "All-rounder",
+          "role": "All-rounder",
+          "tier": "gold",
+          "level": 1,
+          "rating": 80
+        },
+        {
+          "id": "card_1776340820997_kj8w3t",
+          "name": "Marlon Samuels",
+          "country": "West Indies",
+          "position": "All-rounder",
+          "role": "All-rounder",
+          "tier": "silver",
+          "level": 1,
+          "rating": 79
+        },
+        {
+          "id": "card_1776340820997_q8gjqu",
+          "name": "Fidel Edwards",
+          "country": "West Indies",
+          "position": "Bowler",
+          "role": "Fast Bowler",
+          "tier": "silver",
+          "level": 1,
+          "rating": 75
+        },
+        {
+          "id": "card_1776340820997_b84vf0",
+          "name": "Deepak Chahar",
+          "country": "India",
+          "position": "Bowler",
+          "role": "Fast Bowler",
+          "tier": "silver",
+          "level": 1,
+          "rating": 77
+        },
+        {
+          "id": "card_1776340820997_8djexh",
+          "name": "Shoriful Islam",
+          "country": "Bangladesh",
+          "position": "Bowler",
+          "role": "Fast Bowler",
+          "tier": "bronze",
+          "level": 1,
+          "rating": 73
+        },
+        {
+          "id": "card_1776340820997_epmxeo",
+          "name": "Dinesh Karthik",
+          "country": "India",
+          "position": "Wicket-keeper",
+          "role": "Wicket-keeper Bat",
+          "tier": "silver",
+          "level": 1,
+          "rating": 78
+        },
+        {
+          "id": "card_1776340820997_6s9nbx",
           "name": "Hardik Pandya",
           "country": "India",
           "position": "All-rounder",
           "role": "All-rounder",
+          "tier": "elite",
           "level": 1,
-          "rating": 92
+          "rating": 91
         }
       ],
-      "debuted": true,
-      "squad": [
-        {
-          "id": "card_1776246220171_0.24751253977298548",
-          "name": "Hardik Pandya",
-          "country": "India",
-          "position": "All-rounder",
-          "role": "All-rounder",
-          "level": 1,
-          "rating": 92
-        }
-      ]
-    },
-    "1259477193285959754": {
-      "username": "_mohinn",
-      "team": [],
       "stats": {
         "matches": 0,
         "wins": 0,
         "runs": 0,
         "wickets": 0,
-        "coins": 3500
+        "coins": 1800
       },
       "cards": [
         {
-          "id": "card_1776246243475_0.06735189916317619",
-          "name": "Liam Livingstone",
-          "country": "England",
-          "position": "All-rounder",
-          "rating": 84,
-          "role": "All-rounder",
-          "level": 1
-        },
-        {
-          "id": "card_1776246243475_0.9942939285490806",
-          "name": "Tamim Iqbal",
+          "id": "card_1776340820993_9yhlzl",
+          "name": "Mushfiqur Rahim",
           "country": "Bangladesh",
-          "position": "Batsman",
-          "rating": 85,
-          "role": "Left-handed Bat",
+          "position": "Wicket-keeper",
+          "rating": 83,
+          "role": "Wicket-keeper Bat",
+          "tier": "gold",
           "level": 1
         },
         {
-          "id": "card_1776246243475_0.8478557126264891",
-          "name": "Ravichandran Ashwin",
-          "country": "India",
-          "position": "All-rounder",
-          "rating": 91,
-          "role": "Off-spinner",
-          "level": 1
-        },
-        {
-          "id": "card_1776246243475_0.3101652156946193",
-          "name": "Shaheen Afridi",
-          "country": "Pakistan",
+          "id": "card_1776340820993_s9uxtz",
+          "name": "Mustafizur Rahman",
+          "country": "Bangladesh",
           "position": "Bowler",
-          "rating": 91,
+          "rating": 83,
           "role": "Fast Bowler",
+          "tier": "gold",
           "level": 1
         },
         {
-          "id": "card_1776246243475_0.061294388890648976",
-          "name": "Martin Guptill",
+          "id": "card_1776340820993_foin4d",
+          "name": "Dean Elgar",
+          "country": "South Africa",
+          "position": "Batsman",
+          "rating": 81,
+          "role": "Left-handed Bat",
+          "tier": "gold",
+          "level": 1
+        },
+        {
+          "id": "card_1776340820993_37h5bz",
+          "name": "Ross Taylor",
           "country": "New Zealand",
           "position": "Batsman",
-          "rating": 87,
+          "rating": 85,
           "role": "Right-handed Bat",
+          "tier": "gold",
           "level": 1
         },
         {
-          "id": "card_1776246243476_0.36992033732999596",
-          "name": "Ravichandran Ashwin",
+          "id": "card_1776340820993_64a8ns",
+          "name": "Sean Williams",
+          "country": "Zimbabwe",
+          "position": "All-rounder",
+          "rating": 77,
+          "role": "All-rounder",
+          "tier": "silver",
+          "level": 1
+        },
+        {
+          "id": "card_1776340820996_6a57bq",
+          "name": "Ambati Rayudu",
+          "country": "India",
+          "position": "Batsman",
+          "role": "Right-handed Bat",
+          "tier": "silver",
+          "level": 1,
+          "rating": 76
+        },
+        {
+          "id": "card_1776340820996_a6uk6q",
+          "name": "Zak Crawley",
+          "country": "England",
+          "position": "Batsman",
+          "role": "Right-handed Bat",
+          "tier": "silver",
+          "level": 1,
+          "rating": 78
+        },
+        {
+          "id": "card_1776340820996_byn2bg",
+          "name": "Arjuna Ranatunga",
+          "country": "Sri Lanka",
+          "position": "Batsman",
+          "role": "Left-handed Bat",
+          "tier": "silver",
+          "level": 1,
+          "rating": 78
+        },
+        {
+          "id": "card_1776340820996_3w153d",
+          "name": "Asghar Afghan",
+          "country": "Afghanistan",
+          "position": "Batsman",
+          "role": "Right-handed Bat",
+          "tier": "silver",
+          "level": 1,
+          "rating": 76
+        },
+        {
+          "id": "card_1776340820996_5xkp9m",
+          "name": "Sourav Ganguly",
           "country": "India",
           "position": "All-rounder",
-          "role": "Off-spinner",
+          "role": "All-rounder",
+          "tier": "gold",
+          "level": 1,
+          "rating": 80
+        },
+        {
+          "id": "card_1776340820997_kj8w3t",
+          "name": "Marlon Samuels",
+          "country": "West Indies",
+          "position": "All-rounder",
+          "role": "All-rounder",
+          "tier": "silver",
+          "level": 1,
+          "rating": 79
+        },
+        {
+          "id": "card_1776340820997_q8gjqu",
+          "name": "Fidel Edwards",
+          "country": "West Indies",
+          "position": "Bowler",
+          "role": "Fast Bowler",
+          "tier": "silver",
+          "level": 1,
+          "rating": 75
+        },
+        {
+          "id": "card_1776340820997_b84vf0",
+          "name": "Deepak Chahar",
+          "country": "India",
+          "position": "Bowler",
+          "role": "Fast Bowler",
+          "tier": "silver",
+          "level": 1,
+          "rating": 77
+        },
+        {
+          "id": "card_1776340820997_8djexh",
+          "name": "Shoriful Islam",
+          "country": "Bangladesh",
+          "position": "Bowler",
+          "role": "Fast Bowler",
+          "tier": "bronze",
+          "level": 1,
+          "rating": 73
+        },
+        {
+          "id": "card_1776340820997_epmxeo",
+          "name": "Dinesh Karthik",
+          "country": "India",
+          "position": "Wicket-keeper",
+          "role": "Wicket-keeper Bat",
+          "tier": "silver",
+          "level": 1,
+          "rating": 78
+        },
+        {
+          "id": "card_1776340820997_6s9nbx",
+          "name": "Hardik Pandya",
+          "country": "India",
+          "position": "All-rounder",
+          "role": "All-rounder",
+          "tier": "elite",
           "level": 1,
           "rating": 91
         },
         {
-          "id": "card_1776246271424",
-          "name": "Martin Guptill",
-          "country": "New Zealand",
+          "id": "card_1776340821013_5ezxcb",
+          "name": "Shubman Gill",
+          "country": "India",
           "position": "Batsman",
           "role": "Right-handed Bat",
+          "tier": "gold",
           "level": 1,
           "rating": 87
         }
       ],
-      "lastClaim": 1776246271424,
-      "lastDaily": 1776246281129,
-      "debuted": true
-    },
-    "1032485455389790289": {
-      "username": "darthabuser.fr",
-      "team": [],
-      "squad": [],
-      "stats": {
-        "matches": 0,
-        "wins": 0,
-        "runs": 0,
-        "wickets": 0,
-        "coins": 1500
-      },
-      "cards": [
-        {
-          "id": "card_1776250885535_0.5240285651451765",
-          "name": "Nicholas Pooran",
-          "country": "West Indies",
-          "position": "Batsman",
-          "rating": 88,
-          "role": "Left-handed Bat",
-          "level": 1
-        },
-        {
-          "id": "card_1776250885535_0.9774131002251031",
-          "name": "Pat Cummins",
-          "country": "Australia",
-          "position": "Bowler",
-          "rating": 93,
-          "role": "Fast Bowler",
-          "level": 1
-        },
-        {
-          "id": "card_1776250885535_0.9578710241006972",
-          "name": "Babar Azam",
-          "country": "Pakistan",
-          "position": "Batsman",
-          "rating": 97,
-          "role": "Right-handed Bat",
-          "level": 1
-        },
-        {
-          "id": "card_1776250885535_0.7383294934472352",
-          "name": "Tamim Iqbal",
-          "country": "Bangladesh",
-          "position": "Batsman",
-          "rating": 85,
-          "role": "Left-handed Bat",
-          "level": 1
-        },
-        {
-          "id": "card_1776250885535_0.8749635926389588",
-          "name": "Axar Patel",
-          "country": "India",
-          "position": "All-rounder",
-          "rating": 85,
-          "role": "All-rounder",
-          "level": 1
-        },
-        {
-          "id": "card_1776250885538_0.7404866185056762",
-          "name": "Shakib Al Hasan",
-          "country": "Bangladesh",
-          "position": "All-rounder",
-          "role": "All-rounder",
-          "level": 1,
-          "rating": 90
-        }
-      ],
       "lastClaim": 0,
       "lastDaily": 0,
-      "debuted": true
+      "debuted": true,
+      "teamName": "TestPlayer's XI",
+      "currentMatch": null
     }
   },
-  "matches": {
-    "match_1776250932590": {
-      "userId": "1259477193285959754",
-      "opponent": "AI Bot",
-      "overs": 20,
-      "userScore": 0,
-      "userWickets": 0,
-      "opponentScore": 0,
-      "opponentWickets": 0,
-      "currentInning": "user",
-      "currentOver": 0,
-      "status": "ongoing"
-    }
-  }
+  "matches": {},
+  "challenges": {},
+  "duels": {}
 }
