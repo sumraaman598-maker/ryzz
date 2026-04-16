@@ -1,0 +1,237 @@
+{
+  "users": {
+    "1078721777980669983": {
+      "username": "riyaz_msdian",
+      "team": [],
+      "stats": {
+        "matches": 0,
+        "wins": 0,
+        "runs": 0,
+        "wickets": 0,
+        "coins": 1500
+      },
+      "cards": [
+        {
+          "id": "card_1776245621225_0",
+          "name": "Player 1",
+          "position": "Batsman",
+          "level": 1,
+          "rating": 91
+        },
+        {
+          "id": "card_1776245621225_1",
+          "name": "Player 2",
+          "position": "Batsman",
+          "level": 1,
+          "rating": 77
+        },
+        {
+          "id": "card_1776245621225_2",
+          "name": "Player 3",
+          "position": "All-rounder",
+          "level": 1,
+          "rating": 78
+        },
+        {
+          "id": "card_1776245621225_3",
+          "name": "Player 4",
+          "position": "Batsman",
+          "level": 1,
+          "rating": 50
+        },
+        {
+          "id": "card_1776245621225_4",
+          "name": "Player 5",
+          "position": "Batsman",
+          "level": 1,
+          "rating": 51
+        },
+        {
+          "id": "card_1776246220171_0.24751253977298548",
+          "name": "Hardik Pandya",
+          "country": "India",
+          "position": "All-rounder",
+          "role": "All-rounder",
+          "level": 1,
+          "rating": 92
+        }
+      ],
+      "debuted": true,
+      "squad": [
+        {
+          "id": "card_1776246220171_0.24751253977298548",
+          "name": "Hardik Pandya",
+          "country": "India",
+          "position": "All-rounder",
+          "role": "All-rounder",
+          "level": 1,
+          "rating": 92
+        }
+      ]
+    },
+    "1259477193285959754": {
+      "username": "_mohinn",
+      "team": [],
+      "stats": {
+        "matches": 0,
+        "wins": 0,
+        "runs": 0,
+        "wickets": 0,
+        "coins": 3500
+      },
+      "cards": [
+        {
+          "id": "card_1776246243475_0.06735189916317619",
+          "name": "Liam Livingstone",
+          "country": "England",
+          "position": "All-rounder",
+          "rating": 84,
+          "role": "All-rounder",
+          "level": 1
+        },
+        {
+          "id": "card_1776246243475_0.9942939285490806",
+          "name": "Tamim Iqbal",
+          "country": "Bangladesh",
+          "position": "Batsman",
+          "rating": 85,
+          "role": "Left-handed Bat",
+          "level": 1
+        },
+        {
+          "id": "card_1776246243475_0.8478557126264891",
+          "name": "Ravichandran Ashwin",
+          "country": "India",
+          "position": "All-rounder",
+          "rating": 91,
+          "role": "Off-spinner",
+          "level": 1
+        },
+        {
+          "id": "card_1776246243475_0.3101652156946193",
+          "name": "Shaheen Afridi",
+          "country": "Pakistan",
+          "position": "Bowler",
+          "rating": 91,
+          "role": "Fast Bowler",
+          "level": 1
+        },
+        {
+          "id": "card_1776246243475_0.061294388890648976",
+          "name": "Martin Guptill",
+          "country": "New Zealand",
+          "position": "Batsman",
+          "rating": 87,
+          "role": "Right-handed Bat",
+          "level": 1
+        },
+        {
+          "id": "card_1776246243476_0.36992033732999596",
+          "name": "Ravichandran Ashwin",
+          "country": "India",
+          "position": "All-rounder",
+          "role": "Off-spinner",
+          "level": 1,
+          "rating": 91
+        },
+        {
+          "id": "card_1776246271424",
+          "name": "Martin Guptill",
+          "country": "New Zealand",
+          "position": "Batsman",
+          "role": "Right-handed Bat",
+          "level": 1,
+          "rating": 87
+        }
+      ],
+      "lastClaim": 1776246271424,
+      "lastDaily": 1776246281129,
+      "debuted": true
+    },
+    "1032485455389790289": {
+      "username": "darthabuser.fr",
+      "team": [],
+      "squad": [],
+      "stats": {
+        "matches": 0,
+        "wins": 0,
+        "runs": 0,
+        "wickets": 0,
+        "coins": 1500
+      },
+      "cards": [
+        {
+          "id": "card_1776250885535_0.5240285651451765",
+          "name": "Nicholas Pooran",
+          "country": "West Indies",
+          "position": "Batsman",
+          "rating": 88,
+          "role": "Left-handed Bat",
+          "level": 1
+        },
+        {
+          "id": "card_1776250885535_0.9774131002251031",
+          "name": "Pat Cummins",
+          "country": "Australia",
+          "position": "Bowler",
+          "rating": 93,
+          "role": "Fast Bowler",
+          "level": 1
+        },
+        {
+          "id": "card_1776250885535_0.9578710241006972",
+          "name": "Babar Azam",
+          "country": "Pakistan",
+          "position": "Batsman",
+          "rating": 97,
+          "role": "Right-handed Bat",
+          "level": 1
+        },
+        {
+          "id": "card_1776250885535_0.7383294934472352",
+          "name": "Tamim Iqbal",
+          "country": "Bangladesh",
+          "position": "Batsman",
+          "rating": 85,
+          "role": "Left-handed Bat",
+          "level": 1
+        },
+        {
+          "id": "card_1776250885535_0.8749635926389588",
+          "name": "Axar Patel",
+          "country": "India",
+          "position": "All-rounder",
+          "rating": 85,
+          "role": "All-rounder",
+          "level": 1
+        },
+        {
+          "id": "card_1776250885538_0.7404866185056762",
+          "name": "Shakib Al Hasan",
+          "country": "Bangladesh",
+          "position": "All-rounder",
+          "role": "All-rounder",
+          "level": 1,
+          "rating": 90
+        }
+      ],
+      "lastClaim": 0,
+      "lastDaily": 0,
+      "debuted": true
+    }
+  },
+  "matches": {
+    "match_1776250932590": {
+      "userId": "1259477193285959754",
+      "opponent": "AI Bot",
+      "overs": 20,
+      "userScore": 0,
+      "userWickets": 0,
+      "opponentScore": 0,
+      "opponentWickets": 0,
+      "currentInning": "user",
+      "currentOver": 0,
+      "status": "ongoing"
+    }
+  }
+}

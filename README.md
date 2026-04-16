@@ -1,6 +1,6 @@
 # Discord Cricket Bot
 
-A simple Discord bot for cricket enthusiasts.
+A Discord cricket bot with club building, player cards, solo matches, and live 1v1 duels.
 
 ## Setup
 
@@ -12,17 +12,22 @@ A simple Discord bot for cricket enthusiasts.
 
 4. Create a Discord bot at https://discord.com/developers/applications
 
-5. Get the bot token and replace 'YOUR_BOT_TOKEN' in index.js
+5. Copy `.env.example` to `.env` and set `BOT_TOKEN`
 
-6. Run `npm start` to start the bot.
+6. Run `npm start` to start the bot
 
 ## Commands
 
-- `!cricket` - Greet the bot
-- `!help` - Show available commands
-- `!score` - Placeholder for cricket scores
+- `rchelp` - Show all commands
+- `rcguide` - Quick-start guide
+- `rcdebut`, `rcclaim`, `rcdaily`, `rcpurse` - Build your club economy
+- `rclist`, `rcaddtosquad`, `rcswap`, `rc11`, `rcxi` - Manage your playing XI
+- `rcteamname`, `rcprofile`, `rccareer` - Club identity and career stats
+- `rcsearch`, `rcaddcard`, `rcrelease`, `rcallplayers` - Scout and manage players
+- `rcplay` - Solo AI match
+- `rcchallenge`, `rcaccept`, `rctoss`, `rcsetbatter`, `rcsetbowler`, `rcshot`, `rcbowl`, `rcduelstatus` - Live 1v1 match flow
 
 ## Future Enhancements
 
-- Integrate with a cricket API for real-time scores
-- Add more commands like player stats, match schedules
+- Integrate with a cricket API for live scores and schedules
+- Add seasons, tournaments, and richer player progression
