@@ -1,83 +1,177 @@
 // ─────────────────────────────────────────────────────────────────────────────
-//  DUEL ENGINE  —  Full Cricket Feel
-//  Handles 1v1 matches with full batting orders, bowler rotation, scorecards,
-//  milestones, commentary, powerplay, required run rate, and more.
+//  CRICKET GURU MATCH ENGINE
+//  Exact replica of Cricket Guru's match system:
+//  - Shots: cover_drive | square_drive | pull | straight_drive (+ lofted_ prefix)
+//  - Deliveries: yorker | good | full | short (+ spin_ prefix)
+//  - Strength/weakness/neutral system
+//  - Lofted = 6 or out vs any delivery
+//  - Spin = extra wicket chance on neutral
+//  - Both players submit simultaneously (secret until both submit)
+//  - Full innings, wickets, scorecard, commentary
 // ─────────────────────────────────────────────────────────────────────────────
 
-// ── SHOT / DELIVERY MATRIX ────────────────────────────────────────────────────
-// Each shot has a STRENGTH delivery (guaranteed boundary, low wicket chance),
-// a WEAKNESS delivery (high wicket chance, 0 runs), and NEUTRAL deliveries.
-// Loft is always high-risk/high-reward regardless of delivery.
+// ── SHOT / DELIVERY DEFINITIONS ──────────────────────────────────────────────
 //
-//  Shots:      cover_drive | pull | sweep | loft
-//  Deliveries: yorker | bouncer | full | short
+//  Shot strengths (shot → delivery it beats for 4 runs):
+//    cover_drive   → full
+//    square_drive  → yorker
+//    pull          → short
+//    straight_drive→ good
+//
+//  Shot weaknesses (shot → delivery that gets it out):
+//    cover_drive   → short
+//    square_drive  → good
+//    pull          → yorker
+//    straight_drive→ full
+//
+//  Lofted shots (lofted_cover_drive etc.) → always 6 or wicket
+//  Spin deliveries (spin_yorker etc.) → neutral gets extra wicket chance
 
-const OUTCOME_MATRIX = {
-  cover_drive: {
-    full:    { minRuns: 4, maxRuns: 4, wicketChance: 0.07 },  // strength
-    short:   { minRuns: 0, maxRuns: 0, wicketChance: 0.58 },  // weakness
-    yorker:  { minRuns: 1, maxRuns: 3, wicketChance: 0.22 },  // neutral
-    bouncer: { minRuns: 1, maxRuns: 3, wicketChance: 0.18 },  // neutral
-  },
-  pull: {
-    short:   { minRuns: 4, maxRuns: 4, wicketChance: 0.07 },  // strength
-    yorker:  { minRuns: 0, maxRuns: 0, wicketChance: 0.58 },  // weakness
-    full:    { minRuns: 1, maxRuns: 3, wicketChance: 0.18 },  // neutral
-    bouncer: { minRuns: 1, maxRuns: 3, wicketChance: 0.22 },  // neutral
-  },
-  sweep: {
-    yorker:  { minRuns: 4, maxRuns: 4, wicketChance: 0.07 },  // strength
-    bouncer: { minRuns: 0, maxRuns: 0, wicketChance: 0.58 },  // weakness
-    full:    { minRuns: 1, maxRuns: 3, wicketChance: 0.18 },  // neutral
-    short:   { minRuns: 1, maxRuns: 3, wicketChance: 0.22 },  // neutral
-  },
-  loft: {
-    full:    { minRuns: 6, maxRuns: 6, wicketChance: 0.42 },
-    short:   { minRuns: 6, maxRuns: 6, wicketChance: 0.42 },
-    yorker:  { minRuns: 6, maxRuns: 6, wicketChance: 0.62 },  // hardest to loft
-    bouncer: { minRuns: 6, maxRuns: 6, wicketChance: 0.38 },
-  },
+const BASE_SHOTS = ['cover_drive', 'square_drive', 'pull', 'straight_drive'];
+const BASE_DELIVERIES = ['yorker', 'good', 'full', 'short'];
+
+const VALID_SHOTS = [
+  'cover_drive', 'square_drive', 'pull', 'straight_drive',
+  'lofted_cover_drive', 'lofted_square_drive', 'lofted_pull', 'lofted_straight_drive',
+];
+const VALID_DELIVERIES = [
+  'yorker', 'good', 'full', 'short',
+  'spin_yorker', 'spin_good', 'spin_full', 'spin_short',
+];
+
+const SHOT_LABELS = {
+  cover_drive: 'Cover Drive', square_drive: 'Square Drive',
+  pull: 'Pull', straight_drive: 'Straight Drive',
+  lofted_cover_drive: 'Lofted Cover Drive 🚀', lofted_square_drive: 'Lofted Square Drive 🚀',
+  lofted_pull: 'Lofted Pull 🚀', lofted_straight_drive: 'Lofted Straight Drive 🚀',
+};
+const DELIVERY_LABELS = {
+  yorker: 'Yorker', good: 'Good Length', full: 'Full Toss', short: 'Short Ball',
+  spin_yorker: 'Spin Yorker 🌀', spin_good: 'Spin Good Length 🌀',
+  spin_full: 'Spin Full Toss 🌀', spin_short: 'Spin Short Ball 🌀',
 };
 
-const VALID_SHOTS     = ['cover_drive', 'pull', 'sweep', 'loft'];
-const VALID_DELIVERIES = ['yorker', 'bouncer', 'full', 'short'];
-const BALL_TIMEOUT_MS  = 60 * 1000;
-
-const SHOT_LABELS     = { cover_drive: 'Cover Drive', pull: 'Pull', sweep: 'Sweep', loft: 'Loft 🚀' };
-const DELIVERY_LABELS = { yorker: 'Yorker', bouncer: 'Bouncer', full: 'Full Toss', short: 'Short Ball' };
-
-// ── COMMENTARY TEMPLATES ──────────────────────────────────────────────────────
-const COMMENTARY = {
-  six:     ['🚀 MAXIMUM! That\'s gone all the way!', '💥 SIX! Into the stands!', '🏏 Huge hit! Six runs!', '🌟 Massive six over long-on!'],
-  four:    ['🏏 FOUR! Races to the boundary!', '⚡ Cracking shot, four runs!', '🎯 Perfectly timed, four!', '💨 Whipped away for four!'],
-  wicket:  ['💀 WICKET! Back to the pavilion!', '🔴 OUT! What a delivery!', '😱 Gone! The stumps are shattered!', '🎳 Bowled him! Clean as a whistle!', '🪤 Caught! Brilliant catch!'],
-  dot:     ['🛡️ Dot ball. Good bowling.', '🔒 Defended solidly.', '⚫ No run. Tight bowling.', '🧱 Blocked away.'],
-  one:     ['🏃 Quick single taken.', '✅ 1 run, good running.', '🏃 Pushed for a single.'],
-  two:     ['🏃🏃 Two runs! Good running between the wickets.', '✅ 2 runs, well run!'],
-  three:   ['🏃🏃🏃 Three runs! Excellent running!', '✅ 3 runs, great effort!'],
+// Strength map: shot → delivery it beats
+const SHOT_STRENGTH = {
+  cover_drive: 'full', square_drive: 'yorker',
+  pull: 'short', straight_drive: 'good',
+};
+// Weakness map: shot → delivery that gets it out
+const SHOT_WEAKNESS = {
+  cover_drive: 'short', square_drive: 'good',
+  pull: 'yorker', straight_drive: 'full',
 };
 
-function getCommentary(runs, isWicket) {
-  if (isWicket) return COMMENTARY.wicket[Math.floor(Math.random() * COMMENTARY.wicket.length)];
-  if (runs === 6) return COMMENTARY.six[Math.floor(Math.random() * COMMENTARY.six.length)];
-  if (runs === 4) return COMMENTARY.four[Math.floor(Math.random() * COMMENTARY.four.length)];
-  if (runs === 0) return COMMENTARY.dot[Math.floor(Math.random() * COMMENTARY.dot.length)];
-  if (runs === 1) return COMMENTARY.one[Math.floor(Math.random() * COMMENTARY.one.length)];
-  if (runs === 2) return COMMENTARY.two[Math.floor(Math.random() * COMMENTARY.two.length)];
-  return COMMENTARY.three[Math.floor(Math.random() * COMMENTARY.three.length)];
+const BALL_TIMEOUT_MS = 60 * 1000;
+
+// ── OUTCOME CALCULATOR ────────────────────────────────────────────────────────
+function calculateOutcome(shot, delivery, batterRating = 80, bowlerRating = 80) {
+  const isLofted = shot.startsWith('lofted_');
+  const isSpin   = delivery.startsWith('spin_');
+  const baseShot = isLofted ? shot.replace('lofted_', '') : shot;
+  const baseDel  = isSpin   ? delivery.replace('spin_', '') : delivery;
+
+  // Rating modifier: ±12% wicket chance based on rating diff
+  const ratingMod = (batterRating - bowlerRating) / 100 * 0.12;
+
+  // LOFTED: always 6 or wicket
+  if (isLofted) {
+    // Lofted against weakness delivery = very high wicket chance
+    const isWeakness = SHOT_WEAKNESS[baseShot] === baseDel;
+    const baseWicket = isWeakness ? 0.70 : 0.45;
+    const wicketChance = Math.max(0.05, Math.min(0.95, baseWicket - ratingMod));
+    const isWicket = Math.random() < wicketChance;
+    return { runs: isWicket ? 0 : 6, isWicket, type: 'lofted' };
+  }
+
+  const strength = SHOT_STRENGTH[baseShot];
+  const weakness = SHOT_WEAKNESS[baseShot];
+
+  // STRENGTH: 4 runs, very low wicket chance
+  if (baseDel === strength) {
+    const wicketChance = Math.max(0.02, 0.07 - ratingMod);
+    const isWicket = Math.random() < wicketChance;
+    return { runs: isWicket ? 0 : 4, isWicket, type: 'strength' };
+  }
+
+  // WEAKNESS: 0 runs, high wicket chance
+  if (baseDel === weakness) {
+    const wicketChance = Math.max(0.10, Math.min(0.95, 0.60 - ratingMod));
+    const isWicket = Math.random() < wicketChance;
+    return { runs: isWicket ? 0 : 0, isWicket, type: 'weakness' };
+  }
+
+  // NEUTRAL: 1-3 runs, moderate wicket chance
+  // Spin adds extra wicket chance on neutral
+  const baseWicket = isSpin ? 0.28 : 0.18;
+  const wicketChance = Math.max(0.05, Math.min(0.80, baseWicket - ratingMod));
+  const isWicket = Math.random() < wicketChance;
+  const runs = isWicket ? 0 : Math.floor(Math.random() * 3) + 1; // 1-3
+  return { runs, isWicket, type: isSpin ? 'spin_neutral' : 'neutral' };
+}
+
+// ── COMMENTARY ────────────────────────────────────────────────────────────────
+const COMMENTARY_LINES = {
+  strength: [
+    'Timed to perfection! Races to the boundary!',
+    'What a shot! Finds the gap beautifully!',
+    'Elegant stroke play — four runs!',
+    'Textbook shot, right through the covers!',
+  ],
+  weakness: [
+    'Beaten! The stumps are shattered!',
+    'Caught at the boundary! Poor shot selection!',
+    'Edged and gone! The bowler celebrates!',
+    'That delivery was too good — OUT!',
+  ],
+  lofted_six: [
+    'MAXIMUM! That is gone all the way!',
+    'Into the stands! What a hit!',
+    'SIX! Huge shot over long-on!',
+    'Cleared the ropes with ease!',
+  ],
+  lofted_out: [
+    'Caught in the deep! Mistimed the loft!',
+    'Skied it and taken! Risky shot costs the wicket!',
+    'Tried to go big but found the fielder!',
+  ],
+  neutral_1: ['Pushed for a single.', 'Quick single taken.', 'Nudged to mid-on, one run.'],
+  neutral_2: ['Two runs! Good running between the wickets.', 'Driven for two.'],
+  neutral_3: ['Three runs! Excellent running!', 'Driven hard, three runs.'],
+  spin_wicket: ['Spun past the bat! Bowled!', 'Turned sharply — OUT! The spinner strikes!', 'Deceived in flight — caught at slip!'],
+  dot: ['Dot ball. Tight bowling.', 'Defended solidly.', 'No run. Good line and length.'],
+  wicket_generic: ['OUT! Back to the pavilion!', 'WICKET! The crowd erupts!', 'Gone! What a delivery!'],
+};
+
+function getCommentary(result, shot, delivery) {
+  const { isWicket, runs, type } = result;
+  const isSpin = delivery.startsWith('spin_');
+  const isLofted = shot.startsWith('lofted_');
+
+  if (isLofted) {
+    const pool = isWicket ? COMMENTARY_LINES.lofted_out : COMMENTARY_LINES.lofted_six;
+    return pool[Math.floor(Math.random() * pool.length)];
+  }
+  if (isWicket) {
+    const pool = isSpin ? COMMENTARY_LINES.spin_wicket
+      : type === 'weakness' ? COMMENTARY_LINES.weakness
+      : COMMENTARY_LINES.wicket_generic;
+    return pool[Math.floor(Math.random() * pool.length)];
+  }
+  if (type === 'strength') return COMMENTARY_LINES.strength[Math.floor(Math.random() * COMMENTARY_LINES.strength.length)];
+  if (runs === 0) return COMMENTARY_LINES.dot[Math.floor(Math.random() * COMMENTARY_LINES.dot.length)];
+  if (runs === 1) return COMMENTARY_LINES.neutral_1[Math.floor(Math.random() * COMMENTARY_LINES.neutral_1.length)];
+  if (runs === 2) return COMMENTARY_LINES.neutral_2[Math.floor(Math.random() * COMMENTARY_LINES.neutral_2.length)];
+  return COMMENTARY_LINES.neutral_3[Math.floor(Math.random() * COMMENTARY_LINES.neutral_3.length)];
 }
 
 // ── MILESTONE DETECTION ───────────────────────────────────────────────────────
-function checkMilestones(batterStats, bowlerStats, runs, isWicket, prevBatterRuns) {
+function checkMilestones(prevRuns, newRuns, bowlerWickets, batterName, bowlerName) {
   const milestones = [];
-  if (!isWicket) {
-    const newRuns = prevBatterRuns + runs;
-    if (prevBatterRuns < 50 && newRuns >= 50) milestones.push(`🌟 **FIFTY!** ${batterStats.name} reaches 50 runs!`);
-    if (prevBatterRuns < 100 && newRuns >= 100) milestones.push(`💯 **CENTURY!** ${batterStats.name} scores 100 runs!`);
-  }
-  if (isWicket && bowlerStats.wickets >= 5) {
-    milestones.push(`🎳 **FIVE-WICKET HAUL!** ${bowlerStats.name} is on fire!`);
-  }
+  if (prevRuns < 50 && newRuns >= 50) milestones.push(`🌟 **FIFTY!** ${batterName} reaches 50 runs!`);
+  if (prevRuns < 100 && newRuns >= 100) milestones.push(`💯 **CENTURY!** ${batterName} scores 100 runs!`);
+  if (bowlerWickets === 3) milestones.push(`🎳 **HAT-TRICK ALERT!** ${bowlerName} on a roll!`);
+  if (bowlerWickets === 5) milestones.push(`🔥 **FIVE-FOR!** ${bowlerName} is unstoppable!`);
   return milestones;
 }
 
@@ -88,65 +182,37 @@ function createDuelData(duelId, challengerId, challengerName, opponentId, oppone
   const tossLoser  = tossWinner === challengerId ? opponentId : challengerId;
 
   return {
-    duelId,
-    format,
-    overs,
-    teamA: null,
-    teamB: null,
-    tossWinner,
-    tossLoser,
-    tossChoice: null,
+    duelId, format, overs,
+    teamA: null, teamB: null,
+    tossWinner, tossLoser, tossChoice: null,
     players: {
       [challengerId]: { userId: challengerId, username: challengerName },
       [opponentId]:   { userId: opponentId,   username: opponentName  },
     },
     innings: 1,
-    // Full innings data for both innings
-    inningsData: {
-      1: createInningsData(),
-      2: createInningsData(),
-    },
-    battingTeam:  null,
-    bowlingTeam:  null,
-    // Current active players
-    currentBatter: null,
-    currentBowler: null,
-    // Pending choices this ball
-    pendingShot:     null,
-    pendingDelivery: null,
-    lastBallTime:    null,
-    status: 'toss',   // toss → selecting → live → completed
+    inningsData: { 1: createInningsData(), 2: createInningsData() },
+    battingTeam: null, bowlingTeam: null,
+    currentBatter: null, currentBowler: null,
+    pendingShot: null, pendingDelivery: null,
+    lastBallTime: null,
+    status: 'toss',
     winner: null,
     channelId: null,
-    batterMsgId: null,
-    bowlerMsgId: null,
-    scoreMsgId:  null,
+    batterMsgId: null, bowlerMsgId: null,
   };
 }
 
 function createInningsData() {
   return {
-    runs:    0,
-    wickets: 0,
-    balls:   0,
-    extras:  0,
-    // Per-batter stats: { name, runs, balls, fours, sixes, out, dismissed }
-    batters: {},
-    // Per-bowler stats: { name, overs, balls, runs, wickets, maidens }
-    bowlers: {},
-    // Ball-by-ball log: [{ over, ball, batter, bowler, shot, delivery, runs, isWicket, commentary }]
-    ballLog: [],
-    // Batting order: array of card objects (set when innings starts)
-    battingOrder: [],
-    // Bowling rotation: array of card objects (set when innings starts)
-    bowlingRotation: [],
-    // Index of next batter to come in
-    nextBatterIdx: 0,
-    // Overs bowled per bowler: { cardId: balls }
+    runs: 0, wickets: 0, balls: 0,
+    batters: {},   // { cardId: { name, runs, balls, fours, sixes, out, dismissed } }
+    bowlers: {},   // { cardId: { name, balls, runs, wickets } }
     bowlerBalls: {},
-    // Current over number (0-indexed)
+    battingOrder: [],
+    bowlingRotation: [],
+    nextBatterIdx: 0,
+    ballLog: [],   // last 6 balls display
     currentOver: 0,
-    // Balls in current over
     ballsInOver: 0,
   };
 }
@@ -157,66 +223,58 @@ function setupInnings(duel, inningsNum, battingUserId, bowlingUserId, getSquadFn
   const battingSquad = getSquadFn(battingUserId);
   const bowlingSquad = getSquadFn(bowlingUserId);
 
-  // Batting order: batters first, then all-rounders, then bowlers
-  const batters     = battingSquad.filter(c => c.position === 'Batsman');
-  const allrounders = battingSquad.filter(c => c.position === 'All-rounder');
-  const bowlers     = battingSquad.filter(c => c.position === 'Bowler');
-  inn.battingOrder  = [...batters, ...allrounders, ...bowlers];
+  // Batting order: Batsmen → All-rounders → Wicket-keepers → Bowlers
+  const order = ['Batsman', 'All-rounder', 'Wicket-keeper', 'Bowler'];
+  inn.battingOrder = order.flatMap(pos => battingSquad.filter(c => c.position === pos));
+  if (inn.battingOrder.length === 0) inn.battingOrder = [...battingSquad];
 
-  // Bowling rotation: bowlers first, then all-rounders
-  const bwlrs       = bowlingSquad.filter(c => c.position === 'Bowler');
-  const arBowlers   = bowlingSquad.filter(c => c.position === 'All-rounder');
-  inn.bowlingRotation = [...bwlrs, ...arBowlers];
+  // Bowling rotation: Bowlers → All-rounders
+  inn.bowlingRotation = [
+    ...bowlingSquad.filter(c => c.position === 'Bowler'),
+    ...bowlingSquad.filter(c => c.position === 'All-rounder'),
+  ];
+  if (inn.bowlingRotation.length === 0) inn.bowlingRotation = [...bowlingSquad];
 
-  // Init batter stats
   inn.battingOrder.forEach(c => {
     inn.batters[c.id] = { name: c.name, runs: 0, balls: 0, fours: 0, sixes: 0, out: false, dismissed: '' };
   });
-
-  // Init bowler stats
   inn.bowlingRotation.forEach(c => {
-    inn.bowlers[c.id] = { name: c.name, overs: 0, balls: 0, runs: 0, wickets: 0 };
+    inn.bowlers[c.id] = { name: c.name, balls: 0, runs: 0, wickets: 0 };
     inn.bowlerBalls[c.id] = 0;
   });
-
   inn.nextBatterIdx = 0;
 }
 
-// ── ELIGIBLE BOWLERS (respects over limit) ────────────────────────────────────
-function getEligibleBowlers(duel, bowlingUserId, getSquadFn) {
+// ── ELIGIBLE PLAYERS ──────────────────────────────────────────────────────────
+function getEligibleBatters(duel, userId, getSquadFn) {
   const inn = duel.inningsData[duel.innings];
-  const maxBowlerBalls = Math.floor(duel.overs / 5) * 6; // T20: 4 overs, ODI: 10 overs
-  const squad = getSquadFn(bowlingUserId);
-  const eligible = squad.filter(c =>
-    (c.position === 'Bowler' || c.position === 'All-rounder') &&
-    (inn.bowlerBalls[c.id] || 0) < maxBowlerBalls
-  );
-  return eligible.length > 0 ? eligible : squad.filter(c => c.position === 'Bowler' || c.position === 'All-rounder');
-}
-
-// ── ELIGIBLE BATTERS (not yet out) ────────────────────────────────────────────
-function getEligibleBatters(duel, battingUserId, getSquadFn) {
-  const inn = duel.inningsData[duel.innings];
-  const squad = getSquadFn(battingUserId);
+  const squad = getSquadFn(userId);
   return squad.filter(c => {
     const stats = inn.batters[c.id];
     return stats && !stats.out;
   });
 }
 
+function getEligibleBowlers(duel, userId, getSquadFn) {
+  const inn = duel.inningsData[duel.innings];
+  const maxBalls = Math.floor(duel.overs / 5) * 6; // T20: 4 overs, ODI: 10 overs
+  const squad = getSquadFn(userId);
+  const eligible = squad.filter(c =>
+    (c.position === 'Bowler' || c.position === 'All-rounder') &&
+    (inn.bowlerBalls[c.id] || 0) < maxBalls
+  );
+  return eligible.length > 0 ? eligible : squad.filter(c => c.position === 'Bowler' || c.position === 'All-rounder');
+}
+
 // ── RESOLVE ONE BALL ──────────────────────────────────────────────────────────
 function resolveDuelBall(duel) {
   const shot     = duel.pendingShot;
   const delivery = duel.pendingDelivery;
-  const outcome  = OUTCOME_MATRIX[shot][delivery];
+  const batterRating = duel.currentBatter?.rating || 80;
+  const bowlerRating = duel.currentBowler?.rating || 80;
 
-  const batterRating = duel.currentBatter ? duel.currentBatter.rating : 80;
-  const bowlerRating = duel.currentBowler ? duel.currentBowler.rating : 80;
-  const ratingDiff   = (batterRating - bowlerRating) / 100;
-  const adjWicket    = Math.max(0.02, Math.min(0.95, outcome.wicketChance - ratingDiff * 0.12));
-
-  const isWicket = Math.random() < adjWicket;
-  const runs     = isWicket ? 0 : Math.floor(Math.random() * (outcome.maxRuns - outcome.minRuns + 1)) + outcome.minRuns;
+  const result = calculateOutcome(shot, delivery, batterRating, bowlerRating);
+  const { runs, isWicket } = result;
 
   const inn = duel.inningsData[duel.innings];
   const batterId = duel.currentBatter?.id;
@@ -242,7 +300,6 @@ function resolveDuelBall(duel) {
     inn.bowlers[bowlerId].runs += runs;
     if (isWicket) inn.bowlers[bowlerId].wickets++;
     inn.bowlerBalls[bowlerId] = (inn.bowlerBalls[bowlerId] || 0) + 1;
-    inn.bowlers[bowlerId].overs = Math.floor(inn.bowlerBalls[bowlerId] / 6);
   }
 
   // Update innings totals
@@ -250,38 +307,26 @@ function resolveDuelBall(duel) {
   inn.ballsInOver++;
   if (!isWicket) inn.runs += runs;
   if (isWicket)  inn.wickets++;
+  if (inn.ballsInOver >= 6) { inn.currentOver++; inn.ballsInOver = 0; }
 
-  // Over tracking
-  if (inn.ballsInOver >= 6) {
-    inn.currentOver++;
-    inn.ballsInOver = 0;
-  }
+  // Ball log (last 6 balls)
+  const ballSymbol = isWicket ? 'W' : runs === 6 ? '6' : runs === 4 ? '4' : String(runs);
+  inn.ballLog.push(ballSymbol);
+  if (inn.ballLog.length > 6) inn.ballLog.shift();
 
-  // Commentary
-  const commentary = getCommentary(runs, isWicket);
-
-  // Milestones
-  const milestones = batterId && inn.batters[batterId]
-    ? checkMilestones(
-        { ...inn.batters[batterId], name: duel.currentBatter?.name },
-        bowlerId && inn.bowlers[bowlerId] ? { ...inn.bowlers[bowlerId], name: duel.currentBowler?.name } : {},
-        runs, isWicket, prevBatterRuns
-      )
-    : [];
-
-  // Ball log
-  const overStr = `${inn.currentOver}.${inn.ballsInOver === 0 ? 6 : inn.ballsInOver}`;
-  inn.ballLog.push({
-    over: overStr,
-    batter: duel.currentBatter?.name || '?',
-    bowler: duel.currentBowler?.name || '?',
-    shot, delivery, runs, isWicket, commentary,
-  });
+  // Commentary & milestones
+  const commentary = getCommentary(result, shot, delivery);
+  const newBatterRuns = prevBatterRuns + (isWicket ? 0 : runs);
+  const bowlerWickets = bowlerId && inn.bowlers[bowlerId] ? inn.bowlers[bowlerId].wickets : 0;
+  const milestones = checkMilestones(
+    prevBatterRuns, newBatterRuns, bowlerWickets,
+    duel.currentBatter?.name || '?', duel.currentBowler?.name || '?'
+  );
 
   // Reset pending
-  duel.pendingShot     = null;
+  duel.pendingShot = null;
   duel.pendingDelivery = null;
-  duel.lastBallTime    = null;
+  duel.lastBallTime = null;
 
   // Check innings end
   const maxBalls   = duel.overs * 6;
@@ -289,20 +334,20 @@ function resolveDuelBall(duel) {
   const chasingWon  = duel.innings === 2 && inn.runs > duel.inningsData[1].runs;
 
   let inningsSwitched = false;
-  let matchOver       = false;
+  let matchOver = false;
 
   if (chasingWon || inningsOver) {
     if (duel.innings === 1) {
-      duel.innings      = 2;
+      duel.innings = 2;
       duel.battingTeam  = duel.teamB;
       duel.bowlingTeam  = duel.teamA;
       duel.currentBatter = null;
       duel.currentBowler = null;
-      duel.status       = 'selecting';
-      inningsSwitched   = true;
+      duel.status = 'selecting';
+      inningsSwitched = true;
     } else {
-      matchOver    = true;
-      duel.status  = 'completed';
+      matchOver = true;
+      duel.status = 'completed';
       const s1 = duel.inningsData[1].runs;
       const s2 = duel.inningsData[2].runs;
       duel.winner = s2 > s1 ? duel.teamB : s1 > s2 ? duel.teamA : 'tie';
@@ -310,11 +355,9 @@ function resolveDuelBall(duel) {
   }
 
   return {
-    success: true,
-    shot, delivery, runs, isWicket,
-    commentary, milestones,
-    inn,
-    inningsSwitched, matchOver,
+    success: true, shot, delivery, runs, isWicket,
+    commentary, milestones, result,
+    inn, inningsSwitched, matchOver,
     batterRating, bowlerRating,
     batterName: duel.currentBatter?.name,
     bowlerName:  duel.currentBowler?.name,
@@ -324,35 +367,34 @@ function resolveDuelBall(duel) {
 // ── SCORECARD FORMATTER ───────────────────────────────────────────────────────
 function formatDuelScorecard(duel, inningsNum) {
   const inn = duel.inningsData[inningsNum];
-  if (!inn) return 'No data';
+  if (!inn || !inn.battingOrder || inn.battingOrder.length === 0) return 'No data yet.';
 
-  const battingUserId  = inningsNum === 1 ? duel.teamA : duel.teamB;
-  const bowlingUserId  = inningsNum === 1 ? duel.teamB : duel.teamA;
-  const battingName    = duel.players[battingUserId]?.username || '?';
-  const bowlingName    = duel.players[bowlingUserId]?.username || '?';
+  const battingUserId = inningsNum === 1 ? duel.teamA : duel.teamB;
+  const bowlingUserId = inningsNum === 1 ? duel.teamB : duel.teamA;
+  const battingName   = duel.players[battingUserId]?.username || '?';
+  const bowlingName   = duel.players[bowlingUserId]?.username || '?';
 
-  // Batting table
-  let batting = `**${battingName} Batting**\n\`\`\`\n`;
-  batting += `${'Batter'.padEnd(20)} ${'R'.padStart(4)} ${'B'.padStart(4)} ${'4s'.padStart(3)} ${'6s'.padStart(3)}\n`;
-  batting += `${'─'.repeat(36)}\n`;
+  let out = `**${battingName} Batting**\n\`\`\`\n`;
+  out += `${'Batter'.padEnd(18)} ${'R'.padStart(3)} ${'B'.padStart(3)} ${'4s'.padStart(3)} ${'6s'.padStart(3)}\n`;
+  out += `${'─'.repeat(32)}\n`;
   Object.values(inn.batters).forEach(b => {
-    const status = b.out ? `out` : `not out`;
-    batting += `${b.name.substring(0,19).padEnd(20)} ${String(b.runs).padStart(4)} ${String(b.balls).padStart(4)} ${String(b.fours).padStart(3)} ${String(b.sixes).padStart(3)}  ${status}\n`;
+    const status = b.out ? 'out' : 'not out';
+    out += `${b.name.substring(0,17).padEnd(18)} ${String(b.runs).padStart(3)} ${String(b.balls).padStart(3)} ${String(b.fours).padStart(3)} ${String(b.sixes).padStart(3)}  ${status}\n`;
   });
-  batting += `${'─'.repeat(36)}\n`;
-  batting += `Total: ${inn.runs}/${inn.wickets} (${Math.floor(inn.balls/6)}.${inn.balls%6} ov)\n\`\`\``;
+  out += `${'─'.repeat(32)}\n`;
+  out += `Total: ${inn.runs}/${inn.wickets} (${Math.floor(inn.balls/6)}.${inn.balls%6} ov)\n\`\`\`\n`;
 
-  // Bowling table
-  let bowling = `**${bowlingName} Bowling**\n\`\`\`\n`;
-  bowling += `${'Bowler'.padEnd(20)} ${'O'.padStart(4)} ${'R'.padStart(4)} ${'W'.padStart(3)}\n`;
-  bowling += `${'─'.repeat(33)}\n`;
+  out += `**${bowlingName} Bowling**\n\`\`\`\n`;
+  out += `${'Bowler'.padEnd(18)} ${'O'.padStart(5)} ${'R'.padStart(3)} ${'W'.padStart(3)}\n`;
+  out += `${'─'.repeat(31)}\n`;
   Object.values(inn.bowlers).forEach(b => {
+    if (b.balls === 0) return;
     const overs = `${Math.floor(b.balls/6)}.${b.balls%6}`;
-    bowling += `${b.name.substring(0,19).padEnd(20)} ${overs.padStart(4)} ${String(b.runs).padStart(4)} ${String(b.wickets).padStart(3)}\n`;
+    out += `${b.name.substring(0,17).padEnd(18)} ${overs.padStart(5)} ${String(b.runs).padStart(3)} ${String(b.wickets).padStart(3)}\n`;
   });
-  bowling += `\`\`\``;
+  out += `\`\`\``;
 
-  return batting + '\n' + bowling;
+  return out;
 }
 
 function formatDuelScore(duel, inningsNum) {
@@ -364,8 +406,8 @@ function getRequiredRunRate(duel) {
   if (duel.innings !== 2) return null;
   const inn1 = duel.inningsData[1];
   const inn2 = duel.inningsData[2];
-  const target = inn1.runs + 1;
-  const needed = target - inn2.runs;
+  const target  = inn1.runs + 1;
+  const needed  = target - inn2.runs;
   const ballsLeft = duel.overs * 6 - inn2.balls;
   if (ballsLeft <= 0 || needed <= 0) return null;
   const rrr = ((needed / ballsLeft) * 6).toFixed(2);
@@ -373,26 +415,16 @@ function getRequiredRunRate(duel) {
 }
 
 function isPowerplay(duel) {
-  const inn = duel.inningsData[duel.innings];
-  return inn.balls < 36; // first 6 overs
+  return duel.inningsData[duel.innings].balls < 36;
 }
 
 module.exports = {
-  OUTCOME_MATRIX,
-  VALID_SHOTS,
-  VALID_DELIVERIES,
+  VALID_SHOTS, VALID_DELIVERIES, BASE_SHOTS, BASE_DELIVERIES,
+  SHOT_LABELS, DELIVERY_LABELS, SHOT_STRENGTH, SHOT_WEAKNESS,
   BALL_TIMEOUT_MS,
-  SHOT_LABELS,
-  DELIVERY_LABELS,
-  createDuelData,
-  createInningsData,
-  setupInnings,
-  getEligibleBowlers,
-  getEligibleBatters,
-  resolveDuelBall,
-  formatDuelScorecard,
-  formatDuelScore,
-  getRequiredRunRate,
-  isPowerplay,
-  getCommentary,
+  calculateOutcome, getCommentary,
+  createDuelData, createInningsData,
+  setupInnings, getEligibleBatters, getEligibleBowlers,
+  resolveDuelBall, formatDuelScorecard, formatDuelScore,
+  getRequiredRunRate, isPowerplay,
 };

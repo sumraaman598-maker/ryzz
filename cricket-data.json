@@ -1,304 +1,85 @@
 {
   "users": {
-    "test_1776340820993": {
+    "test_drop_1776342678814": {
       "username": "Player",
       "team": [],
-      "squad": [
-        {
-          "id": "card_1776340820996_6a57bq",
-          "name": "Ambati Rayudu",
-          "country": "India",
-          "position": "Batsman",
-          "role": "Right-handed Bat",
-          "tier": "silver",
-          "level": 1,
-          "rating": 76
-        },
-        {
-          "id": "card_1776340820996_a6uk6q",
-          "name": "Zak Crawley",
-          "country": "England",
-          "position": "Batsman",
-          "role": "Right-handed Bat",
-          "tier": "silver",
-          "level": 1,
-          "rating": 78
-        },
-        {
-          "id": "card_1776340820996_byn2bg",
-          "name": "Arjuna Ranatunga",
-          "country": "Sri Lanka",
-          "position": "Batsman",
-          "role": "Left-handed Bat",
-          "tier": "silver",
-          "level": 1,
-          "rating": 78
-        },
-        {
-          "id": "card_1776340820996_3w153d",
-          "name": "Asghar Afghan",
-          "country": "Afghanistan",
-          "position": "Batsman",
-          "role": "Right-handed Bat",
-          "tier": "silver",
-          "level": 1,
-          "rating": 76
-        },
-        {
-          "id": "card_1776340820996_5xkp9m",
-          "name": "Sourav Ganguly",
-          "country": "India",
-          "position": "All-rounder",
-          "role": "All-rounder",
-          "tier": "gold",
-          "level": 1,
-          "rating": 80
-        },
-        {
-          "id": "card_1776340820997_kj8w3t",
-          "name": "Marlon Samuels",
-          "country": "West Indies",
-          "position": "All-rounder",
-          "role": "All-rounder",
-          "tier": "silver",
-          "level": 1,
-          "rating": 79
-        },
-        {
-          "id": "card_1776340820997_q8gjqu",
-          "name": "Fidel Edwards",
-          "country": "West Indies",
-          "position": "Bowler",
-          "role": "Fast Bowler",
-          "tier": "silver",
-          "level": 1,
-          "rating": 75
-        },
-        {
-          "id": "card_1776340820997_b84vf0",
-          "name": "Deepak Chahar",
-          "country": "India",
-          "position": "Bowler",
-          "role": "Fast Bowler",
-          "tier": "silver",
-          "level": 1,
-          "rating": 77
-        },
-        {
-          "id": "card_1776340820997_8djexh",
-          "name": "Shoriful Islam",
-          "country": "Bangladesh",
-          "position": "Bowler",
-          "role": "Fast Bowler",
-          "tier": "bronze",
-          "level": 1,
-          "rating": 73
-        },
-        {
-          "id": "card_1776340820997_epmxeo",
-          "name": "Dinesh Karthik",
-          "country": "India",
-          "position": "Wicket-keeper",
-          "role": "Wicket-keeper Bat",
-          "tier": "silver",
-          "level": 1,
-          "rating": 78
-        },
-        {
-          "id": "card_1776340820997_6s9nbx",
-          "name": "Hardik Pandya",
-          "country": "India",
-          "position": "All-rounder",
-          "role": "All-rounder",
-          "tier": "elite",
-          "level": 1,
-          "rating": 91
-        }
-      ],
+      "squad": [],
       "stats": {
         "matches": 0,
         "wins": 0,
         "runs": 0,
         "wickets": 0,
-        "coins": 1800
+        "coins": 1000
       },
       "cards": [
         {
-          "id": "card_1776340820993_9yhlzl",
-          "name": "Mushfiqur Rahim",
+          "id": "card_1776342678818_8qxll9",
+          "name": "Shakib Al Hasan",
           "country": "Bangladesh",
-          "position": "Wicket-keeper",
-          "rating": 83,
-          "role": "Wicket-keeper Bat",
-          "tier": "gold",
-          "level": 1
-        },
-        {
-          "id": "card_1776340820993_s9uxtz",
-          "name": "Mustafizur Rahman",
-          "country": "Bangladesh",
-          "position": "Bowler",
-          "rating": 83,
-          "role": "Fast Bowler",
-          "tier": "gold",
-          "level": 1
-        },
-        {
-          "id": "card_1776340820993_foin4d",
-          "name": "Dean Elgar",
-          "country": "South Africa",
-          "position": "Batsman",
-          "rating": 81,
-          "role": "Left-handed Bat",
-          "tier": "gold",
-          "level": 1
-        },
-        {
-          "id": "card_1776340820993_37h5bz",
-          "name": "Ross Taylor",
-          "country": "New Zealand",
-          "position": "Batsman",
-          "rating": 85,
-          "role": "Right-handed Bat",
-          "tier": "gold",
-          "level": 1
-        },
-        {
-          "id": "card_1776340820993_64a8ns",
-          "name": "Sean Williams",
-          "country": "Zimbabwe",
           "position": "All-rounder",
-          "rating": 77,
-          "role": "All-rounder",
-          "tier": "silver",
-          "level": 1
-        },
-        {
-          "id": "card_1776340820996_6a57bq",
-          "name": "Ambati Rayudu",
-          "country": "India",
-          "position": "Batsman",
-          "role": "Right-handed Bat",
-          "tier": "silver",
-          "level": 1,
-          "rating": 76
-        },
-        {
-          "id": "card_1776340820996_a6uk6q",
-          "name": "Zak Crawley",
-          "country": "England",
-          "position": "Batsman",
-          "role": "Right-handed Bat",
-          "tier": "silver",
-          "level": 1,
-          "rating": 78
-        },
-        {
-          "id": "card_1776340820996_byn2bg",
-          "name": "Arjuna Ranatunga",
-          "country": "Sri Lanka",
-          "position": "Batsman",
-          "role": "Left-handed Bat",
-          "tier": "silver",
-          "level": 1,
-          "rating": 78
-        },
-        {
-          "id": "card_1776340820996_3w153d",
-          "name": "Asghar Afghan",
-          "country": "Afghanistan",
-          "position": "Batsman",
-          "role": "Right-handed Bat",
-          "tier": "silver",
-          "level": 1,
-          "rating": 76
-        },
-        {
-          "id": "card_1776340820996_5xkp9m",
-          "name": "Sourav Ganguly",
-          "country": "India",
-          "position": "All-rounder",
-          "role": "All-rounder",
-          "tier": "gold",
-          "level": 1,
-          "rating": 80
-        },
-        {
-          "id": "card_1776340820997_kj8w3t",
-          "name": "Marlon Samuels",
-          "country": "West Indies",
-          "position": "All-rounder",
-          "role": "All-rounder",
-          "tier": "silver",
-          "level": 1,
-          "rating": 79
-        },
-        {
-          "id": "card_1776340820997_q8gjqu",
-          "name": "Fidel Edwards",
-          "country": "West Indies",
-          "position": "Bowler",
-          "role": "Fast Bowler",
-          "tier": "silver",
-          "level": 1,
-          "rating": 75
-        },
-        {
-          "id": "card_1776340820997_b84vf0",
-          "name": "Deepak Chahar",
-          "country": "India",
-          "position": "Bowler",
-          "role": "Fast Bowler",
-          "tier": "silver",
-          "level": 1,
-          "rating": 77
-        },
-        {
-          "id": "card_1776340820997_8djexh",
-          "name": "Shoriful Islam",
-          "country": "Bangladesh",
-          "position": "Bowler",
-          "role": "Fast Bowler",
-          "tier": "bronze",
-          "level": 1,
-          "rating": 73
-        },
-        {
-          "id": "card_1776340820997_epmxeo",
-          "name": "Dinesh Karthik",
-          "country": "India",
-          "position": "Wicket-keeper",
-          "role": "Wicket-keeper Bat",
-          "tier": "silver",
-          "level": 1,
-          "rating": 78
-        },
-        {
-          "id": "card_1776340820997_6s9nbx",
-          "name": "Hardik Pandya",
-          "country": "India",
-          "position": "All-rounder",
+          "rating": 90,
           "role": "All-rounder",
           "tier": "elite",
-          "level": 1,
-          "rating": 91
+          "level": 1
         },
         {
-          "id": "card_1776340821013_5ezxcb",
-          "name": "Shubman Gill",
+          "id": "card_1776342678818_8pbuds",
+          "name": "Yuzvendra Chahal",
           "country": "India",
+          "position": "Bowler",
+          "rating": 86,
+          "role": "Leg Spinner",
+          "tier": "gold",
+          "level": 1
+        },
+        {
+          "id": "card_1776342678818_7ypej5",
+          "name": "Kevin Pietersen",
+          "country": "England",
           "position": "Batsman",
+          "rating": 86,
           "role": "Right-handed Bat",
           "tier": "gold",
+          "level": 1
+        },
+        {
+          "id": "card_1776342678818_7koimg",
+          "name": "Jos Buttler",
+          "country": "England",
+          "position": "Wicket-keeper",
+          "rating": 89,
+          "role": "Wicket-keeper Bat",
+          "tier": "gold",
+          "level": 1
+        },
+        {
+          "id": "card_1776342678818_r0q47y",
+          "name": "Glenn McGrath",
+          "country": "Australia",
+          "position": "Bowler",
+          "rating": 90,
+          "role": "Fast Bowler",
+          "tier": "elite",
+          "level": 1
+        },
+        {
+          "id": "drop_1776342678823_gji7e9",
+          "name": "Ishan Kishan",
+          "country": "India",
+          "position": "Wicket-keeper",
+          "role": "Wicket-keeper Bat",
+          "tier": "silver",
           "level": 1,
-          "rating": 87
+          "rating": 78
         }
       ],
       "lastClaim": 0,
       "lastDaily": 0,
-      "debuted": true,
-      "teamName": "TestPlayer's XI",
-      "currentMatch": null
+      "debuted": false,
+      "teamName": "TestDrop's XI",
+      "currentMatch": null,
+      "lastDrop": 1776342678823,
+      "pendingDrop": null
     }
   },
   "matches": {},

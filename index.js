@@ -181,6 +181,7 @@ client.on('messageCreate', async (message) => {
         { name: 'rcguide', value: 'Quick-start guide for building your club and winning matches' },
         { name: 'rcdebut', value: 'Start your journey — get 11 players (4 bat, 2 AR, 3 bowl, 1 WK + 1 star) + 1000 coins' },
         { name: 'rcclaim', value: 'Claim a free bronze/silver player (1-hour cooldown)' },
+        { name: 'rcdrop', value: 'Get a random player drop every hour — retain or release for coins' },
         { name: 'rcdaily', value: 'Get 1500 coins + a bonus bronze card (24-hour cooldown)' },
         { name: 'rcpurse', value: 'Check your coin balance and squad value' },
         { name: 'rcaddcard [name]', value: 'Sign a player — cost based on rating (100–5000 coins)' },
@@ -241,7 +242,8 @@ client.on('messageCreate', async (message) => {
         { name: '2. Build Your XI', value: 'Use `rclist`, `rcaddtosquad`, `rcswap`, and `rcxi` to shape your best lineup.' },
         { name: '3. Scout Talent', value: '`rcsearch` to find players and `rcaddcard [name]` to buy specific stars.' },
         { name: '4. Manage Your Club', value: '`rcteamname`, `rcprofile`, `rccareer`, and `rcpurse` keep your club identity clear.' },
-        { name: '5. Compete', value: '`rcplay` for solo matches or `rcchallenge @user [t20/odi]` for live duels.' }
+        { name: '5. Compete', value: '`rcplay` for solo matches or `rcchallenge @user [t20/odi]` for live duels.' },
+        { name: '6. Shot System', value: '**Strengths:** Cover Drive→Full | Square Drive→Yorker | Pull→Short | Straight Drive→Good\n**Lofted** = 6 or out | **Spin** = extra wicket on neutral' }
       );
     message.reply({ embeds: [guideEmbed] });
   }
@@ -791,6 +793,35 @@ client.on('messageCreate', async (message) => {
     }
   }
 
+  else if (command === 'rcdrop') {
+    cricket.initializeUser(userId, message.author.username);
+    const result = cricket.createDrop(userId);
+
+    if (!result.success) return message.reply(`⏱️ ${result.message}`);
+
+    const card = result.card;
+    const tierEmoji = { elite: '🌟', gold: '🥇', silver: '🥈', bronze: '🥉' }[card.tier] || '⭐';
+    const releaseCoins = Math.round(cricket.playerValue(card) * 0.3);
+
+    const dropEmbed = new EmbedBuilder()
+      .setColor('#4a90d9')
+      .setTitle('🎴 Player Drop!')
+      .setDescription(`A player has dropped for you! You have **5 minutes** to decide.`)
+      .addFields(
+        { name: `${tierEmoji} ${card.name}`, value: `${card.country} | ${card.position} | ⭐ ${card.rating}` },
+        { name: 'Retain', value: 'Add to your collection for free', inline: true },
+        { name: 'Release', value: `Get **${releaseCoins} coins** instead`, inline: true },
+      )
+      .setFooter({ text: 'Drops available every hour' });
+
+    const row = new ActionRowBuilder().addComponents(
+      new ButtonBuilder().setCustomId(`drop:retain:${userId}`).setLabel('✅ Retain').setStyle(ButtonStyle.Success),
+      new ButtonBuilder().setCustomId(`drop:release:${userId}`).setLabel('💰 Release').setStyle(ButtonStyle.Secondary),
+    );
+
+    message.reply({ embeds: [dropEmbed], components: [row] });
+  }
+
   else if (command === 'rcwheel' || command === 'rcslots') {
     cricket.initializeUser(userId, message.author.username);
     const result = cricket.spinWheel(userId);
@@ -895,45 +926,78 @@ function buildPlayerSelectButtons(duelId, action, players) {
 }
 
 function buildShotButtons(duelId) {
-  return [new ActionRowBuilder().addComponents(
+  // Row 1: base shots
+  const row1 = new ActionRowBuilder().addComponents(
     new ButtonBuilder().setCustomId(`duel:shot:${duelId}:cover_drive`).setLabel('Cover Drive').setStyle(ButtonStyle.Primary),
+    new ButtonBuilder().setCustomId(`duel:shot:${duelId}:square_drive`).setLabel('Square Drive').setStyle(ButtonStyle.Primary),
     new ButtonBuilder().setCustomId(`duel:shot:${duelId}:pull`).setLabel('Pull').setStyle(ButtonStyle.Primary),
-    new ButtonBuilder().setCustomId(`duel:shot:${duelId}:sweep`).setLabel('Sweep').setStyle(ButtonStyle.Success),
-    new ButtonBuilder().setCustomId(`duel:shot:${duelId}:loft`).setLabel('Loft 🚀').setStyle(ButtonStyle.Danger)
-  )];
+    new ButtonBuilder().setCustomId(`duel:shot:${duelId}:straight_drive`).setLabel('Straight Drive').setStyle(ButtonStyle.Primary),
+  );
+  // Row 2: lofted shots
+  const row2 = new ActionRowBuilder().addComponents(
+    new ButtonBuilder().setCustomId(`duel:shot:${duelId}:lofted_cover_drive`).setLabel('Loft Cover Drive 🚀').setStyle(ButtonStyle.Danger),
+    new ButtonBuilder().setCustomId(`duel:shot:${duelId}:lofted_square_drive`).setLabel('Loft Square Drive 🚀').setStyle(ButtonStyle.Danger),
+    new ButtonBuilder().setCustomId(`duel:shot:${duelId}:lofted_pull`).setLabel('Loft Pull 🚀').setStyle(ButtonStyle.Danger),
+    new ButtonBuilder().setCustomId(`duel:shot:${duelId}:lofted_straight_drive`).setLabel('Loft Straight 🚀').setStyle(ButtonStyle.Danger),
+  );
+  return [row1, row2];
 }
 
 function buildDeliveryButtons(duelId) {
-  return [new ActionRowBuilder().addComponents(
+  // Row 1: base deliveries
+  const row1 = new ActionRowBuilder().addComponents(
     new ButtonBuilder().setCustomId(`duel:delivery:${duelId}:yorker`).setLabel('Yorker').setStyle(ButtonStyle.Danger),
-    new ButtonBuilder().setCustomId(`duel:delivery:${duelId}:bouncer`).setLabel('Bouncer').setStyle(ButtonStyle.Danger),
+    new ButtonBuilder().setCustomId(`duel:delivery:${duelId}:good`).setLabel('Good Length').setStyle(ButtonStyle.Secondary),
     new ButtonBuilder().setCustomId(`duel:delivery:${duelId}:full`).setLabel('Full Toss').setStyle(ButtonStyle.Primary),
-    new ButtonBuilder().setCustomId(`duel:delivery:${duelId}:short`).setLabel('Short Ball').setStyle(ButtonStyle.Secondary)
-  )];
+    new ButtonBuilder().setCustomId(`duel:delivery:${duelId}:short`).setLabel('Short Ball').setStyle(ButtonStyle.Secondary),
+  );
+  // Row 2: spin deliveries
+  const row2 = new ActionRowBuilder().addComponents(
+    new ButtonBuilder().setCustomId(`duel:delivery:${duelId}:spin_yorker`).setLabel('Spin Yorker 🌀').setStyle(ButtonStyle.Success),
+    new ButtonBuilder().setCustomId(`duel:delivery:${duelId}:spin_good`).setLabel('Spin Good 🌀').setStyle(ButtonStyle.Success),
+    new ButtonBuilder().setCustomId(`duel:delivery:${duelId}:spin_full`).setLabel('Spin Full 🌀').setStyle(ButtonStyle.Success),
+    new ButtonBuilder().setCustomId(`duel:delivery:${duelId}:spin_short`).setLabel('Spin Short 🌀').setStyle(ButtonStyle.Success),
+  );
+  return [row1, row2];
 }
 
 function buildDisabledShotButtons(duelId, chosen) {
-  return [new ActionRowBuilder().addComponents(
-    ['cover_drive','pull','sweep','loft'].map(s =>
-      new ButtonBuilder()
-        .setCustomId(`duel:shot:${duelId}:${s}`)
-        .setLabel(s === 'cover_drive' ? 'Cover Drive' : s === 'loft' ? 'Loft 🚀' : s.charAt(0).toUpperCase() + s.slice(1))
-        .setStyle(s === chosen ? ButtonStyle.Success : ButtonStyle.Secondary)
-        .setDisabled(true)
-    )
-  )];
+  const allShots = [
+    ['cover_drive','Cover Drive'], ['square_drive','Square Drive'], ['pull','Pull'], ['straight_drive','Straight Drive'],
+    ['lofted_cover_drive','Loft Cover Drive 🚀'], ['lofted_square_drive','Loft Square Drive 🚀'],
+    ['lofted_pull','Loft Pull 🚀'], ['lofted_straight_drive','Loft Straight 🚀'],
+  ];
+  const rows = [];
+  for (let i = 0; i < allShots.length; i += 4) {
+    rows.push(new ActionRowBuilder().addComponents(
+      allShots.slice(i, i + 4).map(([id, label]) =>
+        new ButtonBuilder().setCustomId(`duel:shot:${duelId}:${id}`)
+          .setLabel(label)
+          .setStyle(id === chosen ? ButtonStyle.Success : ButtonStyle.Secondary)
+          .setDisabled(true)
+      )
+    ));
+  }
+  return rows;
 }
 
 function buildDisabledDeliveryButtons(duelId, chosen) {
-  return [new ActionRowBuilder().addComponents(
-    ['yorker','bouncer','full','short'].map(d =>
-      new ButtonBuilder()
-        .setCustomId(`duel:delivery:${duelId}:${d}`)
-        .setLabel(d === 'full' ? 'Full Toss' : d === 'short' ? 'Short Ball' : d.charAt(0).toUpperCase() + d.slice(1))
-        .setStyle(d === chosen ? ButtonStyle.Success : ButtonStyle.Secondary)
-        .setDisabled(true)
-    )
-  )];
+  const allDels = [
+    ['yorker','Yorker'], ['good','Good Length'], ['full','Full Toss'], ['short','Short Ball'],
+    ['spin_yorker','Spin Yorker 🌀'], ['spin_good','Spin Good 🌀'], ['spin_full','Spin Full 🌀'], ['spin_short','Spin Short 🌀'],
+  ];
+  const rows = [];
+  for (let i = 0; i < allDels.length; i += 4) {
+    rows.push(new ActionRowBuilder().addComponents(
+      allDels.slice(i, i + 4).map(([id, label]) =>
+        new ButtonBuilder().setCustomId(`duel:delivery:${duelId}:${id}`)
+          .setLabel(label)
+          .setStyle(id === chosen ? ButtonStyle.Success : ButtonStyle.Secondary)
+          .setDisabled(true)
+      )
+    ));
+  }
+  return rows;
 }
 
 async function postLiveBallMessage(channel, duel) {
@@ -948,13 +1012,13 @@ async function postLiveBallMessage(channel, duel) {
   const overNum  = Math.floor(inn.balls / 6);
   const ballNum  = inn.balls % 6;
 
-  const recentBalls = inn.ballLog.slice(-6).map(b =>
-    b.isWicket ? '🔴W' : b.runs === 6 ? '6️⃣' : b.runs === 4 ? '4️⃣' : b.runs === 0 ? '⚫' : `${b.runs}`
-  ).join(' ') || '—';
+  // Last 6 balls
+  const ballSymbols = { 'W': '🔴', '6': '6️⃣', '4': '4️⃣', '0': '⚫' };
+  const recentBalls = (inn.ballLog || []).map(b => ballSymbols[b] || `${b}`).join(' ') || '—';
 
   const embed = new EmbedBuilder()
     .setColor(pp ? '#FFD700' : '#1f8b4c')
-    .setTitle(`${pp ? '⚡ POWERPLAY — ' : ''}🏏 Innings ${duel.innings} | Over ${overNum}.${ballNum}`)
+    .setTitle(`${pp ? '⚡ POWERPLAY | ' : ''}🏏 Innings ${duel.innings} — Over ${overNum}.${ballNum}`)
     .addFields(
       { name: '📊 Score', value: score, inline: true },
       { name: '🏏 Batting', value: `<@${batterId}>`, inline: true },
@@ -965,15 +1029,21 @@ async function postLiveBallMessage(channel, duel) {
     );
 
   if (rrr) embed.addFields({ name: '🎯 Chase', value: `Need **${rrr.needed}** off **${Math.floor(rrr.ballsLeft/6)}.${rrr.ballsLeft%6}** overs | RRR: **${rrr.rrr}**` });
+
+  embed.addFields({
+    name: '📖 Shot Guide',
+    value: '**Strengths:** Cover Drive→Full | Square Drive→Yorker | Pull→Short | Straight Drive→Good\n**Lofted shots** = 6 or out | **Spin** = extra wicket on neutral',
+  });
+
   embed.setFooter({ text: 'Both players pick simultaneously — choices hidden until both submit!' });
 
   const batterMsg = await channel.send({
-    content: `<@${batterId}> — **🏏 Play your shot:**`,
+    content: `<@${batterId}> — **🏏 Choose your shot:**`,
     embeds: [embed],
     components: buildShotButtons(duel.duelId),
   });
   const bowlerMsg = await channel.send({
-    content: `<@${bowlerId}> — **🎳 Bowl your delivery:**`,
+    content: `<@${bowlerId}> — **🎳 Choose your delivery:**`,
     components: buildDeliveryButtons(duel.duelId),
   });
 
@@ -984,6 +1054,17 @@ async function postLiveBallMessage(channel, duel) {
 
 async function postBallResult(channel, result, duelId) {
   const { shot, delivery, runs, isWicket, commentary, milestones, inn, inningsSwitched, matchOver, duel, batterRating, bowlerRating, batterName, bowlerName } = result;
+  const outcomeType = result.result?.type || 'neutral';
+
+  const shotLabel     = cricket.SHOT_LABELS[shot]     || shot;
+  const deliveryLabel = cricket.DELIVERY_LABELS[delivery] || delivery;
+
+  // Outcome type label
+  const typeLabels = {
+    strength: '💪 STRENGTH SHOT!', weakness: '😬 WEAKNESS EXPLOITED!',
+    lofted: '🚀 LOFTED!', neutral: '⚡ Neutral', spin_neutral: '🌀 Spin Neutral',
+  };
+  const typeLabel = typeLabels[outcomeType] || '';
 
   const color = isWicket ? '#dc143c' : runs === 6 ? '#FFD700' : runs === 4 ? '#1f8b4c' : '#4a90d9';
   const title = isWicket ? '🔴 WICKET!' : runs === 6 ? '🏏 SIX!' : runs === 4 ? '🏏 FOUR!' : runs === 0 ? '⚫ Dot Ball' : `✅ ${runs} Run${runs !== 1 ? 's' : ''}`;
@@ -991,10 +1072,10 @@ async function postBallResult(channel, result, duelId) {
   const embed = new EmbedBuilder()
     .setColor(color)
     .setTitle(title)
-    .setDescription(commentary || '')
+    .setDescription(`${typeLabel}\n${commentary}`)
     .addFields(
-      { name: '🏏 Shot', value: cricket.SHOT_LABELS[shot], inline: true },
-      { name: '🎳 Delivery', value: cricket.DELIVERY_LABELS[delivery], inline: true },
+      { name: '🏏 Shot', value: shotLabel, inline: true },
+      { name: '🎳 Delivery', value: deliveryLabel, inline: true },
       { name: '\u200b', value: '\u200b', inline: true },
       { name: 'Batter', value: `${batterName || '?'} ⭐${batterRating}`, inline: true },
       { name: 'Bowler', value: `${bowlerName || '?'} ⭐${bowlerRating}`, inline: true },
@@ -1041,7 +1122,6 @@ async function postBallResult(channel, result, duelId) {
     await channel.send({ embeds: [embed] });
     const fd = cricket.getDuel(duelId);
 
-    // After wicket — prompt new batter
     if (isWicket) {
       const eligible = cricket.getDuelEligible(fd.battingTeam, 'bat');
       if (eligible.length > 0) {
@@ -1051,7 +1131,6 @@ async function postBallResult(channel, result, duelId) {
       }
     }
 
-    // After over — prompt new bowler
     const justCompletedOver = fd.inningsData[fd.innings].balls % 6 === 0 && fd.inningsData[fd.innings].balls > 0;
     if (justCompletedOver) {
       const eligible = cricket.getDuelEligible(fd.bowlingTeam, 'bowl');
@@ -1090,6 +1169,26 @@ client.on('interactionCreate', async (interaction) => {
 
   const parts = interaction.customId.split(':');
   const scope = parts[0];
+
+  // ── DROP BUTTONS ────────────────────────────────────────────────────────────
+  if (scope === 'drop') {
+    const action  = parts[1];
+    const ownerId = parts[2];
+    if (interaction.user.id !== ownerId) return interaction.reply({ content: '❌ This drop is not yours!', ephemeral: true });
+    cricket.initializeUser(interaction.user.id, interaction.user.username);
+    if (action === 'retain') {
+      const result = cricket.retainDrop(interaction.user.id);
+      if (!result.success) return interaction.update({ content: `❌ ${result.message}`, embeds: [], components: [] });
+      const te = { elite: '🌟', gold: '🥇', silver: '🥈', bronze: '🥉' }[result.card.tier] || '⭐';
+      return interaction.update({ content: `${te} **${result.card.name}** retained and added to your collection!`, embeds: [], components: [] });
+    }
+    if (action === 'release') {
+      const result = cricket.releaseDrop(interaction.user.id);
+      if (!result.success) return interaction.update({ content: `❌ ${result.message}`, embeds: [], components: [] });
+      return interaction.update({ content: `💰 Released **${result.card.name}** for **${result.coins} coins**!`, embeds: [], components: [] });
+    }
+    return;
+  }
 
   // ── SOLO MATCH BUTTONS ──────────────────────────────────────
   if (scope === 'solo') {

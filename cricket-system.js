@@ -33,6 +33,8 @@ function ensureUserDefaults(user, username = user.username || 'Player') {
   if (typeof user.debuted !== 'boolean') user.debuted = false;
   if (!user.teamName) user.teamName = `${user.username}'s XI`;
   if (!Object.prototype.hasOwnProperty.call(user, 'currentMatch')) user.currentMatch = null;
+  if (typeof user.lastDrop !== 'number') user.lastDrop = 0;
+  if (!Object.prototype.hasOwnProperty.call(user, 'pendingDrop')) user.pendingDrop = null;
 }
 
 // Load data from file
@@ -808,20 +810,24 @@ function swapSquadPlayer(userId, squadIndex, cardId) {
 }
 
 // ─────────────────────────────────────────────
-//  1v1 DUEL SYSTEM — Full Cricket Feel
+//  1v1 DUEL SYSTEM — Cricket Guru Style
 // ─────────────────────────────────────────────
 const engine = require('./duel-engine.js');
 const {
-  VALID_SHOTS, VALID_DELIVERIES, BALL_TIMEOUT_MS,
-  SHOT_LABELS, DELIVERY_LABELS,
+  VALID_SHOTS, VALID_DELIVERIES, BASE_SHOTS, BASE_DELIVERIES,
+  SHOT_LABELS, DELIVERY_LABELS, SHOT_STRENGTH, SHOT_WEAKNESS,
+  BALL_TIMEOUT_MS,
   createDuelData, setupInnings,
   getEligibleBowlers, getEligibleBatters,
-  resolveDuelBall, formatDuelScore,
-  getRequiredRunRate, isPowerplay,
+  resolveDuelBall,
 } = engine;
 
-//  Shots: cover_drive | pull | sweep | loft
-//  Deliveries: yorker | bouncer | full | short
+const formatDuelScore    = engine.formatDuelScore;
+const getRequiredRunRate = engine.getRequiredRunRate;
+const isPowerplay        = engine.isPowerplay;
+
+//  Shots: cover_drive | square_drive | pull | straight_drive (+ lofted_ prefix)
+//  Deliveries: yorker | good | full | short (+ spin_ prefix)
 
 function createChallenge(challengerId, challengerName, opponentId, format) {
   cricketData.challenges[opponentId] = {
@@ -1047,6 +1053,69 @@ function spinWheel(userId) {
   return { success: true, ...result };
 }
 
+// ── DROP SYSTEM (CG-style: hourly player drop, retain or release) ─────────────
+function createDrop(userId) {
+  const user = getProfile(userId);
+  const now = Date.now();
+  const cooldownMs = 60 * 60 * 1000; // 1 hour
+
+  if (user.lastDrop && (now - user.lastDrop) < cooldownMs) {
+    const remainingMs = cooldownMs - (now - user.lastDrop);
+    const remainingMins = Math.ceil(remainingMs / (60 * 1000));
+    return { success: false, message: `Drop available in **${remainingMins} minutes**` };
+  }
+
+  // Drop pool: any player (weighted toward lower tiers)
+  const allPlayers = getAllPlayers();
+  const roll = Math.random();
+  let pool;
+  if (roll < 0.50)      pool = allPlayers.filter(p => p.tier === 'bronze' || p.tier === 'silver');
+  else if (roll < 0.80) pool = allPlayers.filter(p => p.tier === 'gold');
+  else                  pool = allPlayers.filter(p => p.tier === 'elite');
+  if (pool.length === 0) pool = allPlayers;
+
+  const picked = pool[Math.floor(Math.random() * pool.length)];
+  const card = {
+    id: `drop_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+    name: picked.name, country: picked.country,
+    position: picked.position, role: picked.role,
+    tier: picked.tier, level: 1, rating: picked.rating,
+  };
+
+  // Store pending drop (expires in 5 minutes)
+  user.pendingDrop = { card, expiresAt: now + 5 * 60 * 1000 };
+  user.lastDrop = now;
+  saveData();
+
+  return { success: true, card };
+}
+
+function retainDrop(userId) {
+  const user = getProfile(userId);
+  if (!user.pendingDrop) return { success: false, message: 'No pending drop.' };
+  if (Date.now() > user.pendingDrop.expiresAt) {
+    user.pendingDrop = null;
+    saveData();
+    return { success: false, message: 'Drop expired!' };
+  }
+  const card = user.pendingDrop.card;
+  user.cards.push(card);
+  user.pendingDrop = null;
+  saveData();
+  return { success: true, card };
+}
+
+function releaseDrop(userId) {
+  const user = getProfile(userId);
+  if (!user.pendingDrop) return { success: false, message: 'No pending drop.' };
+  const card = user.pendingDrop.card;
+  const coins = Math.round(playerValue(card) * 0.3); // 30% of value for releasing
+  user.stats.coins += coins;
+  user.pendingDrop = null;
+  saveData();
+  return { success: true, card, coins };
+}
+
 module.exports = {
   loadData,
   saveData,
@@ -1066,6 +1135,9 @@ module.exports = {
   claimPlayer,
   dailyReward,
   spinWheel,
+  createDrop,
+  retainDrop,
+  releaseDrop,
   addToSquad,
   removeFromSquad,
   getSquad,
@@ -1100,6 +1172,10 @@ module.exports = {
   isPowerplay,
   VALID_SHOTS,
   VALID_DELIVERIES,
+  BASE_SHOTS,
+  BASE_DELIVERIES,
   SHOT_LABELS,
   DELIVERY_LABELS,
+  SHOT_STRENGTH,
+  SHOT_WEAKNESS,
 };
