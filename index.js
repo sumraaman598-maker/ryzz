@@ -876,16 +876,9 @@ client.on('messageCreate', async (message) => {
       new ButtonBuilder().setCustomId(`duel:decline:${userId}`).setLabel('❌ Decline').setStyle(ButtonStyle.Danger)
     );
 
-    const embed = new EmbedBuilder()
-      .setColor('#FFD700')
-      .setTitle('⚔️ Cricket Challenge!')
-      .setDescription(`${mentioned}, **${message.author.username}** challenges you to a **${format.toUpperCase()}** match!`)
-      .addFields(
-        { name: 'Format', value: format.toUpperCase(), inline: true },
-        { name: 'Overs', value: format === 'odi' ? '50' : '20', inline: true },
-        { name: 'Expires', value: 'In 2 minutes', inline: true }
-      );
-    message.reply({ embeds: [embed], components: [row] });
+    const lobbyEmbed = buildMatchLobbyEmbed(message.author.username, mentioned.username, format);
+    lobbyEmbed.setDescription(`${mentioned}, **${message.author.username}** challenges you to a **${format.toUpperCase()}** match!\nPress ✅ to accept or ❌ to decline.`);
+    message.reply({ embeds: [lobbyEmbed], components: [row] });
   }
 
   // ── END 1v1 DUEL COMMANDS ──────────────────────────────────────
@@ -905,7 +898,90 @@ client.on('messageCreate', async (message) => {
   else if (command === 'rccricket') {
     message.reply('🏏 Cricket Guru bot is ready! Use `rchelp` for commands.');
   }
+
+  // ── COOLDOWNS COMMAND ──────────────────────────────────────────
+
+  else if (command === 'rccooldowns' || command === 'rccd') {
+    cricket.initializeUser(userId, message.author.username);
+    const user = cricket.getProfile(userId);
+    const now = Date.now();
+
+    function timeLeft(lastTime, cooldownMs) {
+      if (!lastTime) return 'Ready ✅';
+      const diff = cooldownMs - (now - lastTime);
+      if (diff <= 0) return 'Ready ✅';
+      const mins = Math.floor(diff / 60000);
+      const hrs  = Math.floor(mins / 60);
+      const days = Math.floor(hrs / 24);
+      if (days > 0) return `in ${days}d ${hrs % 24}h`;
+      if (hrs > 0)  return `in ${hrs}h ${mins % 60}m`;
+      return `in ${mins}m`;
+    }
+
+    const cd = user.cooldowns || {};
+    const lines = [
+      `⏳ **COOLDOWNS**`,
+      `Drop    : ${timeLeft(cd.drop,    60 * 60 * 1000)}`,
+      `Daily   : ${timeLeft(cd.daily,   24 * 60 * 60 * 1000)}`,
+      `Claim   : ${timeLeft(cd.claim,   60 * 60 * 1000)}`,
+      `Wheel   : ${timeLeft(cd.wheel,   10 * 60 * 1000)}`,
+    ];
+    message.reply({ content: '```\n' + lines.join('\n') + '\n```' });
+  }
+
+  // ── PENDING MATCH COMMAND ──────────────────────────────────────
+
+  else if (command === 'rcpm') {
+    cricket.initializeUser(userId, message.author.username);
+    const activeDuel = cricket.getUserActiveDuel(userId);
+    if (!activeDuel) return message.reply('❌ You have no active match. Use `rcchallenge @user` to start one.');
+    const embed = buildMatchLobbyEmbed(
+      activeDuel.players[activeDuel.teamA || Object.keys(activeDuel.players)[0]]?.username || '?',
+      activeDuel.players[activeDuel.teamB || Object.keys(activeDuel.players)[1]]?.username || '?',
+      activeDuel.format
+    );
+    embed.addFields({ name: 'Status', value: activeDuel.status, inline: true });
+    message.reply({ embeds: [embed] });
+  }
 });
+
+// ── STADIUMS / UMPIRES / WEATHER ────────────────────────────────────────────
+
+const STADIUMS = [
+  { name: 'Narendra Modi Stadium', city: 'Ahmedabad', capacity: '132,000' },
+  { name: 'Eden Gardens', city: 'Kolkata', capacity: '66,000' },
+  { name: 'Wankhede Stadium', city: 'Mumbai', capacity: '33,108' },
+  { name: "Lord's Cricket Ground", city: 'London', capacity: '30,000' },
+  { name: 'MCG', city: 'Melbourne', capacity: '100,024' },
+  { name: 'The Oval', city: 'London', capacity: '25,500' },
+  { name: 'SCG', city: 'Sydney', capacity: '48,000' },
+  { name: 'Headingley', city: 'Leeds', capacity: '20,000' },
+  { name: 'Gaddafi Stadium', city: 'Lahore', capacity: '27,000' },
+  { name: 'National Stadium', city: 'Karachi', capacity: '34,228' },
+];
+const UMPIRES = ['Chris Gaffaney', 'Kumar Dharmasena', 'Marais Erasmus', 'Richard Illingworth', 'Rod Tucker', 'Paul Reiffel', 'Nitin Menon', 'Anil Chaudhary'];
+const WEATHER_OPTIONS = ['Dry', 'Overcast', 'Humid', 'Windy', 'Partly Cloudy'];
+
+function randomFrom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+function buildMatchLobbyEmbed(challengerName, opponentName, format) {
+  const stadium = randomFrom(STADIUMS);
+  const umpire = randomFrom(UMPIRES);
+  const weather = randomFrom(WEATHER_OPTIONS);
+  const temp = Math.floor(Math.random() * 18) + 25; // 25-42°C
+  return new EmbedBuilder()
+    .setColor(0x2b2d31)
+    .setTitle('🏏 Match Lobby')
+    .addFields(
+      { name: 'Match', value: `**${challengerName}** vs **${opponentName || '.........'}**`, inline: false },
+      { name: 'Format', value: format.toUpperCase(), inline: true },
+      { name: 'Stadium', value: `${stadium.name}, ${stadium.city}`, inline: true },
+      { name: 'Capacity', value: stadium.capacity, inline: true },
+      { name: 'Weather', value: weather, inline: true },
+      { name: 'Temperature', value: `${temp}°C`, inline: true },
+      { name: 'Umpire', value: umpire, inline: true },
+    );
+}
 
 // ── DUEL BUTTON BUILDERS ────────────────────────────────────────
 
@@ -926,46 +1002,59 @@ function buildPlayerSelectButtons(duelId, action, players) {
 }
 
 function buildShotButtons(duelId) {
-  // Row 1: base shots
+  // Row 1: Drive | Loft | Defend | Sweep
   const row1 = new ActionRowBuilder().addComponents(
-    new ButtonBuilder().setCustomId(`duel:shot:${duelId}:cover_drive`).setLabel('Cover Drive').setStyle(ButtonStyle.Primary),
-    new ButtonBuilder().setCustomId(`duel:shot:${duelId}:square_drive`).setLabel('Square Drive').setStyle(ButtonStyle.Primary),
-    new ButtonBuilder().setCustomId(`duel:shot:${duelId}:pull`).setLabel('Pull').setStyle(ButtonStyle.Primary),
-    new ButtonBuilder().setCustomId(`duel:shot:${duelId}:straight_drive`).setLabel('Straight Drive').setStyle(ButtonStyle.Primary),
+    new ButtonBuilder().setCustomId(`duel:shot:${duelId}:drive`).setLabel('Drive').setStyle(ButtonStyle.Primary),
+    new ButtonBuilder().setCustomId(`duel:shot:${duelId}:loft`).setLabel('Loft').setStyle(ButtonStyle.Danger),
+    new ButtonBuilder().setCustomId(`duel:shot:${duelId}:defend`).setLabel('Defend').setStyle(ButtonStyle.Secondary),
+    new ButtonBuilder().setCustomId(`duel:shot:${duelId}:sweep`).setLabel('Sweep').setStyle(ButtonStyle.Primary),
   );
-  // Row 2: lofted shots
+  // Row 2: Cut | Leave | Pull | Scoop
   const row2 = new ActionRowBuilder().addComponents(
-    new ButtonBuilder().setCustomId(`duel:shot:${duelId}:lofted_cover_drive`).setLabel('Loft Cover Drive 🚀').setStyle(ButtonStyle.Danger),
-    new ButtonBuilder().setCustomId(`duel:shot:${duelId}:lofted_square_drive`).setLabel('Loft Square Drive 🚀').setStyle(ButtonStyle.Danger),
-    new ButtonBuilder().setCustomId(`duel:shot:${duelId}:lofted_pull`).setLabel('Loft Pull 🚀').setStyle(ButtonStyle.Danger),
-    new ButtonBuilder().setCustomId(`duel:shot:${duelId}:lofted_straight_drive`).setLabel('Loft Straight 🚀').setStyle(ButtonStyle.Danger),
+    new ButtonBuilder().setCustomId(`duel:shot:${duelId}:cut`).setLabel('Cut').setStyle(ButtonStyle.Primary),
+    new ButtonBuilder().setCustomId(`duel:shot:${duelId}:leave`).setLabel('Leave').setStyle(ButtonStyle.Secondary),
+    new ButtonBuilder().setCustomId(`duel:shot:${duelId}:pull`).setLabel('Pull').setStyle(ButtonStyle.Primary),
+    new ButtonBuilder().setCustomId(`duel:shot:${duelId}:scoop`).setLabel('Scoop').setStyle(ButtonStyle.Success),
   );
   return [row1, row2];
 }
 
-function buildDeliveryButtons(duelId) {
-  // Row 1: base deliveries
+function buildDeliveryButtons(duelId, bowlerCard) {
+  const spinBowler = cricket.isSpin(bowlerCard);
+  if (spinBowler) {
+    // Spin bowler: 6 buttons, 2 rows
+    const row1 = new ActionRowBuilder().addComponents(
+      new ButtonBuilder().setCustomId(`duel:delivery:${duelId}:offspin`).setLabel('Offspin').setStyle(ButtonStyle.Success),
+      new ButtonBuilder().setCustomId(`duel:delivery:${duelId}:carrom`).setLabel('Carrom').setStyle(ButtonStyle.Success),
+      new ButtonBuilder().setCustomId(`duel:delivery:${duelId}:arm_ball`).setLabel('Arm Ball').setStyle(ButtonStyle.Success),
+    );
+    const row2 = new ActionRowBuilder().addComponents(
+      new ButtonBuilder().setCustomId(`duel:delivery:${duelId}:doosra`).setLabel('Doosra').setStyle(ButtonStyle.Success),
+      new ButtonBuilder().setCustomId(`duel:delivery:${duelId}:topspin`).setLabel('Topspin').setStyle(ButtonStyle.Success),
+      new ButtonBuilder().setCustomId(`duel:delivery:${duelId}:mystery`).setLabel('Mystery').setStyle(ButtonStyle.Danger),
+    );
+    return [row1, row2];
+  }
+  // Fast bowler: 8 buttons, 2 rows
   const row1 = new ActionRowBuilder().addComponents(
-    new ButtonBuilder().setCustomId(`duel:delivery:${duelId}:yorker`).setLabel('Yorker').setStyle(ButtonStyle.Danger),
-    new ButtonBuilder().setCustomId(`duel:delivery:${duelId}:good`).setLabel('Good Length').setStyle(ButtonStyle.Secondary),
-    new ButtonBuilder().setCustomId(`duel:delivery:${duelId}:full`).setLabel('Full Toss').setStyle(ButtonStyle.Primary),
-    new ButtonBuilder().setCustomId(`duel:delivery:${duelId}:short`).setLabel('Short Ball').setStyle(ButtonStyle.Secondary),
+    new ButtonBuilder().setCustomId(`duel:delivery:${duelId}:inswing`).setLabel('Inswing').setStyle(ButtonStyle.Primary),
+    new ButtonBuilder().setCustomId(`duel:delivery:${duelId}:outswing`).setLabel('Outswing').setStyle(ButtonStyle.Primary),
+    new ButtonBuilder().setCustomId(`duel:delivery:${duelId}:slow`).setLabel('Slow').setStyle(ButtonStyle.Secondary),
+    new ButtonBuilder().setCustomId(`duel:delivery:${duelId}:fast`).setLabel('Fast').setStyle(ButtonStyle.Danger),
   );
-  // Row 2: spin deliveries
   const row2 = new ActionRowBuilder().addComponents(
-    new ButtonBuilder().setCustomId(`duel:delivery:${duelId}:spin_yorker`).setLabel('Spin Yorker 🌀').setStyle(ButtonStyle.Success),
-    new ButtonBuilder().setCustomId(`duel:delivery:${duelId}:spin_good`).setLabel('Spin Good 🌀').setStyle(ButtonStyle.Success),
-    new ButtonBuilder().setCustomId(`duel:delivery:${duelId}:spin_full`).setLabel('Spin Full 🌀').setStyle(ButtonStyle.Success),
-    new ButtonBuilder().setCustomId(`duel:delivery:${duelId}:spin_short`).setLabel('Spin Short 🌀').setStyle(ButtonStyle.Success),
+    new ButtonBuilder().setCustomId(`duel:delivery:${duelId}:bouncer`).setLabel('Bouncer').setStyle(ButtonStyle.Danger),
+    new ButtonBuilder().setCustomId(`duel:delivery:${duelId}:good`).setLabel('Good').setStyle(ButtonStyle.Secondary),
+    new ButtonBuilder().setCustomId(`duel:delivery:${duelId}:full`).setLabel('Full').setStyle(ButtonStyle.Primary),
+    new ButtonBuilder().setCustomId(`duel:delivery:${duelId}:yorker`).setLabel('Yorker').setStyle(ButtonStyle.Danger),
   );
   return [row1, row2];
 }
 
 function buildDisabledShotButtons(duelId, chosen) {
   const allShots = [
-    ['cover_drive','Cover Drive'], ['square_drive','Square Drive'], ['pull','Pull'], ['straight_drive','Straight Drive'],
-    ['lofted_cover_drive','Loft Cover Drive 🚀'], ['lofted_square_drive','Loft Square Drive 🚀'],
-    ['lofted_pull','Loft Pull 🚀'], ['lofted_straight_drive','Loft Straight 🚀'],
+    ['drive','Drive'], ['loft','Loft'], ['defend','Defend'], ['sweep','Sweep'],
+    ['cut','Cut'], ['leave','Leave'], ['pull','Pull'], ['scoop','Scoop'],
   ];
   const rows = [];
   for (let i = 0; i < allShots.length; i += 4) {
@@ -981,15 +1070,16 @@ function buildDisabledShotButtons(duelId, chosen) {
   return rows;
 }
 
-function buildDisabledDeliveryButtons(duelId, chosen) {
-  const allDels = [
-    ['yorker','Yorker'], ['good','Good Length'], ['full','Full Toss'], ['short','Short Ball'],
-    ['spin_yorker','Spin Yorker 🌀'], ['spin_good','Spin Good 🌀'], ['spin_full','Spin Full 🌀'], ['spin_short','Spin Short 🌀'],
-  ];
+function buildDisabledDeliveryButtons(duelId, chosen, bowlerCard) {
+  const spinBowler = cricket.isSpin(bowlerCard);
+  const allDels = spinBowler
+    ? [['offspin','Offspin'], ['carrom','Carrom'], ['arm_ball','Arm Ball'], ['doosra','Doosra'], ['topspin','Topspin'], ['mystery','Mystery']]
+    : [['inswing','Inswing'], ['outswing','Outswing'], ['slow','Slow'], ['fast','Fast'], ['bouncer','Bouncer'], ['good','Good'], ['full','Full'], ['yorker','Yorker']];
+  const chunkSize = spinBowler ? 3 : 4;
   const rows = [];
-  for (let i = 0; i < allDels.length; i += 4) {
+  for (let i = 0; i < allDels.length; i += chunkSize) {
     rows.push(new ActionRowBuilder().addComponents(
-      allDels.slice(i, i + 4).map(([id, label]) =>
+      allDels.slice(i, i + chunkSize).map(([id, label]) =>
         new ButtonBuilder().setCustomId(`duel:delivery:${duelId}:${id}`)
           .setLabel(label)
           .setStyle(id === chosen ? ButtonStyle.Success : ButtonStyle.Secondary)
@@ -1003,48 +1093,22 @@ function buildDisabledDeliveryButtons(duelId, chosen) {
 async function postLiveBallMessage(channel, duel) {
   const batterId = duel.battingTeam;
   const bowlerId = duel.bowlingTeam;
-  const batter   = duel.currentBatter;
   const bowler   = duel.currentBowler;
-  const inn      = duel.inningsData[duel.innings];
-  const score    = cricket.formatScore(duel, duel.innings);
-  const pp       = cricket.isPowerplay(duel);
-  const rrr      = cricket.getRequiredRunRate(duel);
-  const overNum  = Math.floor(inn.balls / 6);
-  const ballNum  = inn.balls % 6;
 
-  // Last 6 balls
-  const ballSymbols = { 'W': '🔴', '6': '6️⃣', '4': '4️⃣', '0': '⚫' };
-  const recentBalls = (inn.ballLog || []).map(b => ballSymbols[b] || `${b}`).join(' ') || '—';
+  // Build the scorecard embed
+  const embed = cricket.buildMatchEmbed(duel, duel.innings);
 
-  const embed = new EmbedBuilder()
-    .setColor(pp ? '#FFD700' : '#1f8b4c')
-    .setTitle(`${pp ? '⚡ POWERPLAY | ' : ''}🏏 Innings ${duel.innings} — Over ${overNum}.${ballNum}`)
-    .addFields(
-      { name: '📊 Score', value: score, inline: true },
-      { name: '🏏 Batting', value: `<@${batterId}>`, inline: true },
-      { name: '🎳 Bowling', value: `<@${bowlerId}>`, inline: true },
-      { name: 'On Strike', value: batter ? `**${batter.name}** ⭐${batter.rating}` : 'TBD', inline: true },
-      { name: 'Bowler', value: bowler ? `**${bowler.name}** ⭐${bowler.rating}` : 'TBD', inline: true },
-      { name: 'Last 6 Balls', value: recentBalls, inline: true },
-    );
-
-  if (rrr) embed.addFields({ name: '🎯 Chase', value: `Need **${rrr.needed}** off **${Math.floor(rrr.ballsLeft/6)}.${rrr.ballsLeft%6}** overs | RRR: **${rrr.rrr}**` });
-
-  embed.addFields({
-    name: '📖 Shot Guide',
-    value: '**Strengths:** Cover Drive→Full | Square Drive→Yorker | Pull→Short | Straight Drive→Good\n**Lofted shots** = 6 or out | **Spin** = extra wicket on neutral',
-  });
-
-  embed.setFooter({ text: 'Both players pick simultaneously — choices hidden until both submit!' });
-
+  // Post/edit the main match message with embed + batter shot buttons
   const batterMsg = await channel.send({
-    content: `<@${batterId}> — **🏏 Choose your shot:**`,
+    content: `<@${batterId}> — choose your shot:`,
     embeds: [embed],
     components: buildShotButtons(duel.duelId),
   });
+
+  // Separate message for bowler delivery buttons
   const bowlerMsg = await channel.send({
-    content: `<@${bowlerId}> — **🎳 Choose your delivery:**`,
-    components: buildDeliveryButtons(duel.duelId),
+    content: `<@${batterId}> has chosen. <@${bowlerId}> — choose your delivery:`,
+    components: buildDeliveryButtons(duel.duelId, bowler),
   });
 
   duel.batterMsgId = batterMsg.id;
@@ -1053,62 +1117,35 @@ async function postLiveBallMessage(channel, duel) {
 }
 
 async function postBallResult(channel, result, duelId) {
-  const { shot, delivery, runs, isWicket, commentary, milestones, inn, inningsSwitched, matchOver, duel, batterRating, bowlerRating, batterName, bowlerName } = result;
-  const outcomeType = result.result?.type || 'neutral';
+  const { shot, delivery, runs, isWicket, commentary, milestones, inn, inningsSwitched, matchOver } = result;
+  const fd = cricket.getDuel(duelId);
 
-  const shotLabel     = cricket.SHOT_LABELS[shot]     || shot;
-  const deliveryLabel = cricket.DELIVERY_LABELS[delivery] || delivery;
+  // CG-style commentary as plain text above embed
+  const { deliveryLine, actionLine } = commentary;
+  const commentaryText = `${deliveryLine}\n${actionLine}`;
 
-  // Outcome type label
-  const typeLabels = {
-    strength: '💪 STRENGTH SHOT!', weakness: '😬 WEAKNESS EXPLOITED!',
-    lofted: '🚀 LOFTED!', neutral: '⚡ Neutral', spin_neutral: '🌀 Spin Neutral',
-  };
-  const typeLabel = typeLabels[outcomeType] || '';
-
-  const color = isWicket ? '#dc143c' : runs === 6 ? '#FFD700' : runs === 4 ? '#1f8b4c' : '#4a90d9';
-  const title = isWicket ? '🔴 WICKET!' : runs === 6 ? '🏏 SIX!' : runs === 4 ? '🏏 FOUR!' : runs === 0 ? '⚫ Dot Ball' : `✅ ${runs} Run${runs !== 1 ? 's' : ''}`;
-
-  const embed = new EmbedBuilder()
-    .setColor(color)
-    .setTitle(title)
-    .setDescription(`${typeLabel}\n${commentary}`)
-    .addFields(
-      { name: '🏏 Shot', value: shotLabel, inline: true },
-      { name: '🎳 Delivery', value: deliveryLabel, inline: true },
-      { name: '\u200b', value: '\u200b', inline: true },
-      { name: 'Batter', value: `${batterName || '?'} ⭐${batterRating}`, inline: true },
-      { name: 'Bowler', value: `${bowlerName || '?'} ⭐${bowlerRating}`, inline: true },
-      { name: '\u200b', value: '\u200b', inline: true },
-      { name: '📊 Score', value: `${inn.runs}/${inn.wickets} (${Math.floor(inn.balls/6)}.${inn.balls%6} ov)` },
-    );
-
-  if (milestones && milestones.length > 0) embed.addFields({ name: '🌟 Milestone!', value: milestones.join('\n') });
+  // Updated scorecard embed
+  const embed = cricket.buildMatchEmbed(fd, fd.innings === 2 && inningsSwitched ? 1 : fd.innings);
 
   if (matchOver) {
-    const fd = cricket.getDuel(duelId);
     const winnerName = fd.winner === 'tie' ? null : fd.players[fd.winner].username;
-    embed.addFields(
-      { name: '🏁 MATCH OVER', value: fd.winner === 'tie' ? "🤝 It's a Tie!" : `🏆 **${winnerName}** wins!` },
-      { name: `${fd.players[fd.teamA].username} (Inn 1)`, value: cricket.formatScore(fd, 1), inline: true },
-      { name: `${fd.players[fd.teamB].username} (Inn 2)`, value: cricket.formatScore(fd, 2), inline: true },
-      { name: 'Rewards', value: winnerName ? `**${winnerName}** +200 🪙 | Loser +50 🪙` : 'Both +75 🪙 (tie)' },
-    );
-    await channel.send({ embeds: [embed] });
+    const resultLine = fd.winner === 'tie' ? "🤝 It's a Tie!" : `🏆 **${winnerName}** wins the match!`;
+    await channel.send({
+      content: `${commentaryText}\n\n${resultLine}`,
+      embeds: [embed],
+    });
+    // Full scorecard
     const sc1 = cricket.formatDuelScorecard(fd, 1);
     const sc2 = cricket.formatDuelScorecard(fd, 2);
     const chunks = (`**📋 FULL SCORECARD**\n\n${sc1}\n\n${sc2}`).match(/[\s\S]{1,1900}/g) || [];
     for (const chunk of chunks) await channel.send(chunk);
 
   } else if (inningsSwitched) {
-    const fd = cricket.getDuel(duelId);
     const target = fd.inningsData[1].runs + 1;
-    embed.addFields(
-      { name: '🔄 INNINGS BREAK!', value: `Target: **${target} runs** in ${fd.overs} overs` },
-      { name: '🏏 Now Batting', value: `<@${fd.battingTeam}>`, inline: true },
-      { name: '🎳 Now Bowling', value: `<@${fd.bowlingTeam}>`, inline: true },
-    );
-    await channel.send({ embeds: [embed] });
+    await channel.send({
+      content: `${commentaryText}\n\n🔄 **INNINGS BREAK!** Target: **${target} runs** in ${fd.overs} overs`,
+      embeds: [embed],
+    });
     const sc1 = cricket.formatDuelScorecard(fd, 1);
     const chunks = (`**📋 Innings 1 Scorecard**\n\n${sc1}`).match(/[\s\S]{1,1900}/g) || [];
     for (const chunk of chunks) await channel.send(chunk);
@@ -1119,8 +1156,11 @@ async function postBallResult(channel, result, duelId) {
     cricket.saveData();
 
   } else {
-    await channel.send({ embeds: [embed] });
-    const fd = cricket.getDuel(duelId);
+    // Post commentary + updated embed
+    await channel.send({
+      content: commentaryText,
+      embeds: [embed],
+    });
 
     if (isWicket) {
       const eligible = cricket.getDuelEligible(fd.battingTeam, 'bat');
@@ -1400,7 +1440,7 @@ client.on('interactionCreate', async (interaction) => {
 
       // Disable the shot buttons to show locked in
       await interaction.update({
-        content: `🏏 **${cricket.SHOT_LABELS[shot]}** locked in! Waiting for bowler...`,
+        content: `🏏 **${cricket.SHOT_LABELS[shot] || shot}** locked in! Waiting for bowler...`,
         components: buildDisabledShotButtons(duelId, shot)
       });
 
@@ -1424,8 +1464,8 @@ client.on('interactionCreate', async (interaction) => {
       if (!result.success) return interaction.reply({ content: `❌ ${result.message}`, ephemeral: true });
 
       await interaction.update({
-        content: `🎳 **${cricket.DELIVERY_LABELS[delivery]}** locked in! Waiting for batter...`,
-        components: buildDisabledDeliveryButtons(duelId, delivery)
+        content: `🎳 **${cricket.DELIVERY_LABELS[delivery] || delivery}** locked in! Waiting for batter...`,
+        components: buildDisabledDeliveryButtons(duelId, delivery, duel.currentBowler)
       });
 
       if (!result.waiting) {

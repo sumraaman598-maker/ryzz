@@ -1168,8 +1168,11 @@ module.exports = {
   // engine re-exports
   formatScore: formatDuelScore,
   formatDuelScorecard: engine.formatDuelScorecard,
+  formatDuelScore,
   getRequiredRunRate,
   isPowerplay,
+  isSpin: engine.isSpin,
+  buildMatchEmbed: engine.buildMatchEmbed,
   VALID_SHOTS,
   VALID_DELIVERIES,
   BASE_SHOTS,
