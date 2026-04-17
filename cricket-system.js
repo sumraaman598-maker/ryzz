@@ -269,14 +269,20 @@ function createMatch(userId, format = 't20') {
   const squad = getSquad(userId);
   const overs = format === 'odi' ? 50 : 20;
 
-  if (squad.length < 2) {
-    return { success: false, message: 'Build your squad first. Add at least 2 players with `rcaddtosquad`.' };
+  // ── Require exactly 11 players ──
+  if (squad.length < 11) {
+    return { success: false, message: `You need **11 players** in your squad to play a match. You have **${squad.length}/11**. Use \`rcaddtosquad\` to fill your squad.` };
   }
 
-  const battingOptions = squad.filter(card => card.position === 'Batsman' || card.position === 'All-rounder');
+  // ── Block 2 simultaneous matches ──
+  if (user.currentMatch && cricketData.matches[user.currentMatch]?.status === 'live') {
+    return { success: false, message: 'You already have an active match! Use `rcend` to forfeit it first.' };
+  }
+
+  const battingOptions = squad.filter(card => card.position === 'Batsman' || card.position === 'All-rounder' || card.position === 'Wicket-keeper');
   const bowlingOptions = squad.filter(card => card.position === 'Bowler' || card.position === 'All-rounder');
   if (battingOptions.length === 0 || bowlingOptions.length === 0) {
-    return { success: false, message: 'You need at least 1 batter/all-rounder and 1 bowler/all-rounder in your squad.' };
+    return { success: false, message: 'You need at least 1 batter and 1 bowler in your squad.' };
   }
 
   const userTeam = randomizeCards(squad, Math.min(11, squad.length));
@@ -894,35 +900,53 @@ function setTossChoice(duelId, choice) {
 }
 
 // Select opening batter (index into eligible batters list)
-function selectBatter(duelId, userId, squadIndex) {
+function selectBatter(duelId, userId, cardId) {
   const duel = getDuel(duelId);
   if (!duel) return { success: false, message: 'Duel not found.' };
   if (duel.battingTeam !== userId) return { success: false, message: 'You are not batting right now.' };
   if (duel.status !== 'selecting') return { success: false, message: 'Not in selection phase.' };
 
   const eligible = getEligibleBatters(duel, userId, uid => getSquad(uid));
-  if (squadIndex < 0 || squadIndex >= eligible.length) return { success: false, message: 'Invalid selection.' };
+  const card = eligible.find(c => c.id === cardId);
+  if (!card) return { success: false, message: 'Invalid selection or player already out.' };
 
-  duel.currentBatter = eligible[squadIndex];
-  if (duel.currentBatter && duel.currentBowler) duel.status = 'live';
+  // First pick = striker, second pick = non-striker
+  if (!duel.currentBatter) {
+    duel.currentBatter = card;
+  } else if (!duel.nonStriker) {
+    if (card.id === duel.currentBatter.id) return { success: false, message: 'Pick a different player for non-striker.' };
+    duel.nonStriker = card;
+  } else {
+    // Replacing striker after wicket
+    duel.currentBatter = card;
+  }
+
+  // Go live only when: batter + non-striker + bowler all set
+  if (duel.currentBatter && duel.nonStriker && duel.currentBowler) duel.status = 'live';
   saveData();
-  return { success: true, card: duel.currentBatter };
+  return { success: true, card, isNonStriker: !!duel.nonStriker && duel.currentBatter?.id !== card.id };
 }
 
-// Select opening bowler (index into eligible bowlers list)
-function selectBowler(duelId, userId, squadIndex) {
+// Select bowler — respects over-lock (cannot change mid-over)
+function selectBowler(duelId, userId, cardId) {
   const duel = getDuel(duelId);
   if (!duel) return { success: false, message: 'Duel not found.' };
   if (duel.bowlingTeam !== userId) return { success: false, message: 'You are not bowling right now.' };
   if (duel.status !== 'selecting') return { success: false, message: 'Not in selection phase.' };
 
-  const eligible = getEligibleBowlers(duel, userId, uid => getSquad(uid));
-  if (squadIndex < 0 || squadIndex >= eligible.length) return { success: false, message: 'Invalid selection.' };
+  // Over-lock: cannot change bowler mid-over
+  if (duel.overLocked && duel.currentBowler) {
+    return { success: false, message: `Cannot change bowler mid-over! Wait until the over is complete.` };
+  }
 
-  duel.currentBowler = eligible[squadIndex];
-  if (duel.currentBatter && duel.currentBowler) duel.status = 'live';
+  const eligible = getEligibleBowlers(duel, userId, uid => getSquad(uid));
+  const card = eligible.find(c => c.id === cardId);
+  if (!card) return { success: false, message: 'Invalid selection or bowler has bowled their maximum overs.' };
+
+  duel.currentBowler = card;
+  if (duel.currentBatter && duel.nonStriker && duel.currentBowler) duel.status = 'live';
   saveData();
-  return { success: true, card: duel.currentBowler };
+  return { success: true, card };
 }
 
 function submitShot(duelId, userId, shot) {
@@ -1116,6 +1140,48 @@ function releaseDrop(userId) {
   return { success: true, card, coins };
 }
 
+// ── END MATCH (forfeit) ───────────────────────────────────────────────────────
+function endMatch(userId) {
+  const user = getProfile(userId);
+  // End solo match
+  if (user.currentMatch) {
+    const match = cricketData.matches[user.currentMatch];
+    if (match && match.status !== 'completed') {
+      match.status = 'completed';
+      match.winner = 'ai';
+      user.stats.matches++;
+      user.stats.coins += 10; // small consolation
+    }
+    user.currentMatch = null;
+    saveData();
+    return { success: true, type: 'solo' };
+  }
+  return { success: false, message: 'No active solo match to end.' };
+}
+
+function endDuel(userId) {
+  const duel = getUserActiveDuel(userId);
+  if (!duel) return { success: false, message: 'No active 1v1 match to end.' };
+  if (duel.status === 'completed') return { success: false, message: 'Match already completed.' };
+
+  // Forfeit — opponent wins
+  const opponentId = Object.keys(duel.players).find(id => id !== userId);
+  duel.status  = 'completed';
+  duel.winner  = opponentId || 'tie';
+
+  // Update stats
+  Object.keys(duel.players).forEach(uid => {
+    const u = cricketData.users[uid];
+    if (!u) return;
+    u.stats.matches++;
+    if (uid === opponentId) { u.stats.wins++; u.stats.coins += 200; }
+    else u.stats.coins += 10; // forfeit consolation
+  });
+
+  saveData();
+  return { success: true, type: 'duel', opponentId, duel };
+}
+
 module.exports = {
   loadData,
   saveData,
@@ -1165,6 +1231,8 @@ module.exports = {
   submitDelivery,
   autoPlayTimeout,
   getDuelEligible,
+  endMatch,
+  endDuel,
   // engine re-exports
   formatScore: formatDuelScore,
   formatDuelScorecard: engine.formatDuelScorecard,

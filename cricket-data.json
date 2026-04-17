@@ -1,41 +1,98 @@
 {
   "users": {
-    "test_drop_1776342678814": {
+    "test_1776422671753": {
       "username": "Player",
       "team": [],
-      "squad": [],
+      "squad": [
+        {
+          "id": "p0",
+          "name": "Player0",
+          "position": "Batsman",
+          "rating": 75
+        },
+        {
+          "id": "p1",
+          "name": "Player1",
+          "position": "Batsman",
+          "rating": 75
+        },
+        {
+          "id": "p2",
+          "name": "Player2",
+          "position": "Batsman",
+          "rating": 75
+        },
+        {
+          "id": "p3",
+          "name": "Player3",
+          "position": "Batsman",
+          "rating": 75
+        },
+        {
+          "id": "p4",
+          "name": "Player4",
+          "position": "Batsman",
+          "rating": 75
+        },
+        {
+          "id": "p5",
+          "name": "Player5",
+          "position": "Bowler",
+          "rating": 75
+        },
+        {
+          "id": "p6",
+          "name": "Player6",
+          "position": "Bowler",
+          "rating": 75
+        },
+        {
+          "id": "p7",
+          "name": "Player7",
+          "position": "Bowler",
+          "rating": 75
+        },
+        {
+          "id": "p8",
+          "name": "Player8",
+          "position": "Bowler",
+          "rating": 75
+        },
+        {
+          "id": "p9",
+          "name": "Player9",
+          "position": "Bowler",
+          "rating": 75
+        },
+        {
+          "id": "p10",
+          "name": "Player10",
+          "position": "Bowler",
+          "rating": 75
+        }
+      ],
       "stats": {
-        "matches": 0,
+        "matches": 1,
         "wins": 0,
         "runs": 0,
         "wickets": 0,
-        "coins": 1000
+        "coins": 1010
       },
       "cards": [
         {
-          "id": "card_1776342678818_8qxll9",
-          "name": "Shakib Al Hasan",
-          "country": "Bangladesh",
-          "position": "All-rounder",
-          "rating": 90,
-          "role": "All-rounder",
-          "tier": "elite",
-          "level": 1
-        },
-        {
-          "id": "card_1776342678818_8pbuds",
-          "name": "Yuzvendra Chahal",
-          "country": "India",
-          "position": "Bowler",
-          "rating": 86,
-          "role": "Leg Spinner",
+          "id": "card_1776422671754_um1n3g",
+          "name": "Kraigg Brathwaite",
+          "country": "West Indies",
+          "position": "Batsman",
+          "rating": 80,
+          "role": "Right-handed Bat",
           "tier": "gold",
           "level": 1
         },
         {
-          "id": "card_1776342678818_7ypej5",
-          "name": "Kevin Pietersen",
-          "country": "England",
+          "id": "card_1776422671754_wsrvjd",
+          "name": "Faf du Plessis",
+          "country": "South Africa",
           "position": "Batsman",
           "rating": 86,
           "role": "Right-handed Bat",
@@ -43,46 +100,1843 @@
           "level": 1
         },
         {
-          "id": "card_1776342678818_7koimg",
-          "name": "Jos Buttler",
-          "country": "England",
-          "position": "Wicket-keeper",
-          "rating": 89,
-          "role": "Wicket-keeper Bat",
+          "id": "card_1776422671754_nu2bz7",
+          "name": "Imad Wasim",
+          "country": "Pakistan",
+          "position": "All-rounder",
+          "rating": 81,
+          "role": "All-rounder",
           "tier": "gold",
           "level": 1
         },
         {
-          "id": "card_1776342678818_r0q47y",
-          "name": "Glenn McGrath",
-          "country": "Australia",
-          "position": "Bowler",
-          "rating": 90,
-          "role": "Fast Bowler",
+          "id": "card_1776422671754_9dgcgv",
+          "name": "Suryakumar Yadav",
+          "country": "India",
+          "position": "Batsman",
+          "rating": 91,
+          "role": "Right-handed Bat",
           "tier": "elite",
           "level": 1
         },
         {
-          "id": "drop_1776342678823_gji7e9",
-          "name": "Ishan Kishan",
-          "country": "India",
-          "position": "Wicket-keeper",
-          "role": "Wicket-keeper Bat",
-          "tier": "silver",
-          "level": 1,
-          "rating": 78
+          "id": "card_1776422671754_j9h4r1",
+          "name": "Andrew Flintoff",
+          "country": "England",
+          "position": "All-rounder",
+          "rating": 83,
+          "role": "All-rounder",
+          "tier": "gold",
+          "level": 1
         }
       ],
       "lastClaim": 0,
       "lastDaily": 0,
       "debuted": false,
-      "teamName": "TestDrop's XI",
-      "currentMatch": null,
-      "lastDrop": 1776342678823,
+      "teamName": "TestUser's XI",
+      "currentMatch": "match_1776422671780",
+      "lastDrop": 0,
       "pendingDrop": null
     }
   },
-  "matches": {},
+  "matches": {
+    "match_1776422671771": {
+      "matchId": "match_1776422671771",
+      "userId": "test_1776422671753",
+      "format": "t20",
+      "overs": 20,
+      "status": "completed",
+      "opponent": "Coastal Kings",
+      "tossWinner": "ai",
+      "tossChoice": "bat",
+      "userTeamName": "TestUser's XI",
+      "aiTeamName": "Coastal Kings",
+      "lineups": {
+        "user": {
+          "batting": [
+            {
+              "id": "p0",
+              "name": "Player0",
+              "position": "Batsman",
+              "level": 1,
+              "rating": 75
+            },
+            {
+              "id": "p1",
+              "name": "Player1",
+              "position": "Batsman",
+              "level": 1,
+              "rating": 75
+            },
+            {
+              "id": "p2",
+              "name": "Player2",
+              "position": "Batsman",
+              "level": 1,
+              "rating": 75
+            },
+            {
+              "id": "p3",
+              "name": "Player3",
+              "position": "Batsman",
+              "level": 1,
+              "rating": 75
+            },
+            {
+              "id": "p4",
+              "name": "Player4",
+              "position": "Batsman",
+              "level": 1,
+              "rating": 75
+            },
+            {
+              "id": "p8",
+              "name": "Player8",
+              "position": "Bowler",
+              "level": 1,
+              "rating": 75
+            },
+            {
+              "id": "p10",
+              "name": "Player10",
+              "position": "Bowler",
+              "level": 1,
+              "rating": 75
+            },
+            {
+              "id": "p5",
+              "name": "Player5",
+              "position": "Bowler",
+              "level": 1,
+              "rating": 75
+            },
+            {
+              "id": "p9",
+              "name": "Player9",
+              "position": "Bowler",
+              "level": 1,
+              "rating": 75
+            },
+            {
+              "id": "p7",
+              "name": "Player7",
+              "position": "Bowler",
+              "level": 1,
+              "rating": 75
+            },
+            {
+              "id": "p6",
+              "name": "Player6",
+              "position": "Bowler",
+              "level": 1,
+              "rating": 75
+            }
+          ],
+          "bowling": [
+            {
+              "id": "p8",
+              "name": "Player8",
+              "position": "Bowler",
+              "level": 1,
+              "rating": 75
+            },
+            {
+              "id": "p10",
+              "name": "Player10",
+              "position": "Bowler",
+              "level": 1,
+              "rating": 75
+            },
+            {
+              "id": "p5",
+              "name": "Player5",
+              "position": "Bowler",
+              "level": 1,
+              "rating": 75
+            },
+            {
+              "id": "p9",
+              "name": "Player9",
+              "position": "Bowler",
+              "level": 1,
+              "rating": 75
+            },
+            {
+              "id": "p7",
+              "name": "Player7",
+              "position": "Bowler",
+              "level": 1,
+              "rating": 75
+            },
+            {
+              "id": "p6",
+              "name": "Player6",
+              "position": "Bowler",
+              "level": 1,
+              "rating": 75
+            },
+            {
+              "id": "p0",
+              "name": "Player0",
+              "position": "Batsman",
+              "level": 1,
+              "rating": 75
+            },
+            {
+              "id": "p1",
+              "name": "Player1",
+              "position": "Batsman",
+              "level": 1,
+              "rating": 75
+            },
+            {
+              "id": "p2",
+              "name": "Player2",
+              "position": "Batsman",
+              "level": 1,
+              "rating": 75
+            },
+            {
+              "id": "p3",
+              "name": "Player3",
+              "position": "Batsman",
+              "level": 1,
+              "rating": 75
+            },
+            {
+              "id": "p4",
+              "name": "Player4",
+              "position": "Batsman",
+              "level": 1,
+              "rating": 75
+            }
+          ]
+        },
+        "ai": {
+          "batting": [
+            {
+              "id": "ai_daniel_vettori_d3s82d",
+              "name": "Daniel Vettori",
+              "country": "New Zealand",
+              "position": "All-rounder",
+              "role": "All-rounder",
+              "level": 1,
+              "rating": 84
+            },
+            {
+              "id": "ai_marcus_stoinis_yfbr89",
+              "name": "Marcus Stoinis",
+              "country": "Australia",
+              "position": "All-rounder",
+              "role": "All-rounder",
+              "level": 1,
+              "rating": 84
+            },
+            {
+              "id": "ai_saeed_anwar_trgw8p",
+              "name": "Saeed Anwar",
+              "country": "Pakistan",
+              "position": "Batsman",
+              "role": "Left-handed Bat",
+              "level": 1,
+              "rating": 83
+            },
+            {
+              "id": "ai_andrew_flintoff_e87ds2",
+              "name": "Andrew Flintoff",
+              "country": "England",
+              "position": "All-rounder",
+              "role": "All-rounder",
+              "level": 1,
+              "rating": 83
+            },
+            {
+              "id": "ai_moeen_ali_ug2c28",
+              "name": "Moeen Ali",
+              "country": "England",
+              "position": "All-rounder",
+              "role": "All-rounder",
+              "level": 1,
+              "rating": 82
+            },
+            {
+              "id": "ai_imad_wasim_9uwlrk",
+              "name": "Imad Wasim",
+              "country": "Pakistan",
+              "position": "All-rounder",
+              "role": "All-rounder",
+              "level": 1,
+              "rating": 81
+            },
+            {
+              "id": "ai_vvs_laxman_0j52ej",
+              "name": "VVS Laxman",
+              "country": "India",
+              "position": "Batsman",
+              "role": "Right-handed Bat",
+              "level": 1,
+              "rating": 79
+            },
+            {
+              "id": "ai_kevin_o'brien_k1il0a",
+              "name": "Kevin O'Brien",
+              "country": "Ireland",
+              "position": "All-rounder",
+              "role": "All-rounder",
+              "level": 1,
+              "rating": 76
+            },
+            {
+              "id": "ai_afif_hossain_wjf6dy",
+              "name": "Afif Hossain",
+              "country": "Bangladesh",
+              "position": "All-rounder",
+              "role": "All-rounder",
+              "level": 1,
+              "rating": 74
+            },
+            {
+              "id": "ai_alex_carey_t8bcyx",
+              "name": "Alex Carey",
+              "country": "Australia",
+              "position": "Wicket-keeper",
+              "role": "Wicket-keeper Bat",
+              "level": 1,
+              "rating": 82
+            },
+            {
+              "id": "ai_lorcan_tucker_8i8vlh",
+              "name": "Lorcan Tucker",
+              "country": "Ireland",
+              "position": "Wicket-keeper",
+              "role": "Wicket-keeper Bat",
+              "level": 1,
+              "rating": 75
+            }
+          ],
+          "bowling": [
+            {
+              "id": "ai_daniel_vettori_d3s82d",
+              "name": "Daniel Vettori",
+              "country": "New Zealand",
+              "position": "All-rounder",
+              "role": "All-rounder",
+              "level": 1,
+              "rating": 84
+            },
+            {
+              "id": "ai_marcus_stoinis_yfbr89",
+              "name": "Marcus Stoinis",
+              "country": "Australia",
+              "position": "All-rounder",
+              "role": "All-rounder",
+              "level": 1,
+              "rating": 84
+            },
+            {
+              "id": "ai_andrew_flintoff_e87ds2",
+              "name": "Andrew Flintoff",
+              "country": "England",
+              "position": "All-rounder",
+              "role": "All-rounder",
+              "level": 1,
+              "rating": 83
+            },
+            {
+              "id": "ai_moeen_ali_ug2c28",
+              "name": "Moeen Ali",
+              "country": "England",
+              "position": "All-rounder",
+              "role": "All-rounder",
+              "level": 1,
+              "rating": 82
+            },
+            {
+              "id": "ai_imad_wasim_9uwlrk",
+              "name": "Imad Wasim",
+              "country": "Pakistan",
+              "position": "All-rounder",
+              "role": "All-rounder",
+              "level": 1,
+              "rating": 81
+            },
+            {
+              "id": "ai_kevin_o'brien_k1il0a",
+              "name": "Kevin O'Brien",
+              "country": "Ireland",
+              "position": "All-rounder",
+              "role": "All-rounder",
+              "level": 1,
+              "rating": 76
+            },
+            {
+              "id": "ai_afif_hossain_wjf6dy",
+              "name": "Afif Hossain",
+              "country": "Bangladesh",
+              "position": "All-rounder",
+              "role": "All-rounder",
+              "level": 1,
+              "rating": 74
+            },
+            {
+              "id": "ai_saeed_anwar_trgw8p",
+              "name": "Saeed Anwar",
+              "country": "Pakistan",
+              "position": "Batsman",
+              "role": "Left-handed Bat",
+              "level": 1,
+              "rating": 83
+            },
+            {
+              "id": "ai_alex_carey_t8bcyx",
+              "name": "Alex Carey",
+              "country": "Australia",
+              "position": "Wicket-keeper",
+              "role": "Wicket-keeper Bat",
+              "level": 1,
+              "rating": 82
+            },
+            {
+              "id": "ai_vvs_laxman_0j52ej",
+              "name": "VVS Laxman",
+              "country": "India",
+              "position": "Batsman",
+              "role": "Right-handed Bat",
+              "level": 1,
+              "rating": 79
+            },
+            {
+              "id": "ai_lorcan_tucker_8i8vlh",
+              "name": "Lorcan Tucker",
+              "country": "Ireland",
+              "position": "Wicket-keeper",
+              "role": "Wicket-keeper Bat",
+              "level": 1,
+              "rating": 75
+            }
+          ]
+        }
+      },
+      "currentInnings": 1,
+      "innings": {
+        "1": {
+          "battingSide": "ai",
+          "balls": 0,
+          "runs": {
+            "user": 0,
+            "ai": 0
+          },
+          "wickets": {
+            "user": 0,
+            "ai": 0
+          },
+          "scorecard": {
+            "user": {
+              "Player0": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Player8": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Player10": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Player1": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Player5": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Player9": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Player7": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Player6": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Player2": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Player3": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Player4": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              }
+            },
+            "ai": {
+              "Daniel Vettori": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "batting"
+              },
+              "Saeed Anwar": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Andrew Flintoff": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Alex Carey": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Moeen Ali": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Imad Wasim": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Afif Hossain": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Marcus Stoinis": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "VVS Laxman": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Kevin O'Brien": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Lorcan Tucker": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              }
+            }
+          },
+          "timeline": [],
+          "nextBatterIndex": {
+            "user": 0,
+            "ai": 1
+          },
+          "currentBatter": {
+            "user": null,
+            "ai": {
+              "id": "ai_daniel_vettori_d3s82d",
+              "name": "Daniel Vettori",
+              "country": "New Zealand",
+              "position": "All-rounder",
+              "role": "All-rounder",
+              "level": 1,
+              "rating": 84
+            }
+          },
+          "currentBowler": {
+            "user": {
+              "id": "p8",
+              "name": "Player8",
+              "position": "Bowler",
+              "level": 1,
+              "rating": 75
+            },
+            "ai": null
+          }
+        },
+        "2": {
+          "battingSide": "user",
+          "balls": 0,
+          "runs": {
+            "user": 0,
+            "ai": 0
+          },
+          "wickets": {
+            "user": 0,
+            "ai": 0
+          },
+          "scorecard": {
+            "user": {
+              "Player0": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Player8": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Player10": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Player1": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Player5": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Player9": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Player7": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Player6": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Player2": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Player3": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Player4": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              }
+            },
+            "ai": {
+              "Daniel Vettori": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Saeed Anwar": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Andrew Flintoff": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Alex Carey": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Moeen Ali": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Imad Wasim": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Afif Hossain": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Marcus Stoinis": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "VVS Laxman": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Kevin O'Brien": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Lorcan Tucker": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              }
+            }
+          },
+          "timeline": [],
+          "nextBatterIndex": {
+            "user": 0,
+            "ai": 0
+          },
+          "currentBatter": {
+            "user": null,
+            "ai": null
+          },
+          "currentBowler": {
+            "user": null,
+            "ai": null
+          }
+        }
+      },
+      "winner": "ai"
+    },
+    "match_1776422671780": {
+      "matchId": "match_1776422671780",
+      "userId": "test_1776422671753",
+      "format": "t20",
+      "overs": 20,
+      "status": "live",
+      "opponent": "Metro Titans",
+      "tossWinner": "ai",
+      "tossChoice": "bat",
+      "userTeamName": "TestUser's XI",
+      "aiTeamName": "Metro Titans",
+      "lineups": {
+        "user": {
+          "batting": [
+            {
+              "id": "p3",
+              "name": "Player3",
+              "position": "Batsman",
+              "level": 1,
+              "rating": 75
+            },
+            {
+              "id": "p1",
+              "name": "Player1",
+              "position": "Batsman",
+              "level": 1,
+              "rating": 75
+            },
+            {
+              "id": "p4",
+              "name": "Player4",
+              "position": "Batsman",
+              "level": 1,
+              "rating": 75
+            },
+            {
+              "id": "p0",
+              "name": "Player0",
+              "position": "Batsman",
+              "level": 1,
+              "rating": 75
+            },
+            {
+              "id": "p2",
+              "name": "Player2",
+              "position": "Batsman",
+              "level": 1,
+              "rating": 75
+            },
+            {
+              "id": "p8",
+              "name": "Player8",
+              "position": "Bowler",
+              "level": 1,
+              "rating": 75
+            },
+            {
+              "id": "p7",
+              "name": "Player7",
+              "position": "Bowler",
+              "level": 1,
+              "rating": 75
+            },
+            {
+              "id": "p5",
+              "name": "Player5",
+              "position": "Bowler",
+              "level": 1,
+              "rating": 75
+            },
+            {
+              "id": "p10",
+              "name": "Player10",
+              "position": "Bowler",
+              "level": 1,
+              "rating": 75
+            },
+            {
+              "id": "p6",
+              "name": "Player6",
+              "position": "Bowler",
+              "level": 1,
+              "rating": 75
+            },
+            {
+              "id": "p9",
+              "name": "Player9",
+              "position": "Bowler",
+              "level": 1,
+              "rating": 75
+            }
+          ],
+          "bowling": [
+            {
+              "id": "p8",
+              "name": "Player8",
+              "position": "Bowler",
+              "level": 1,
+              "rating": 75
+            },
+            {
+              "id": "p7",
+              "name": "Player7",
+              "position": "Bowler",
+              "level": 1,
+              "rating": 75
+            },
+            {
+              "id": "p5",
+              "name": "Player5",
+              "position": "Bowler",
+              "level": 1,
+              "rating": 75
+            },
+            {
+              "id": "p10",
+              "name": "Player10",
+              "position": "Bowler",
+              "level": 1,
+              "rating": 75
+            },
+            {
+              "id": "p6",
+              "name": "Player6",
+              "position": "Bowler",
+              "level": 1,
+              "rating": 75
+            },
+            {
+              "id": "p9",
+              "name": "Player9",
+              "position": "Bowler",
+              "level": 1,
+              "rating": 75
+            },
+            {
+              "id": "p3",
+              "name": "Player3",
+              "position": "Batsman",
+              "level": 1,
+              "rating": 75
+            },
+            {
+              "id": "p1",
+              "name": "Player1",
+              "position": "Batsman",
+              "level": 1,
+              "rating": 75
+            },
+            {
+              "id": "p4",
+              "name": "Player4",
+              "position": "Batsman",
+              "level": 1,
+              "rating": 75
+            },
+            {
+              "id": "p0",
+              "name": "Player0",
+              "position": "Batsman",
+              "level": 1,
+              "rating": 75
+            },
+            {
+              "id": "p2",
+              "name": "Player2",
+              "position": "Batsman",
+              "level": 1,
+              "rating": 75
+            }
+          ]
+        },
+        "ai": {
+          "batting": [
+            {
+              "id": "ai_tillakaratne_dilshan_sdfmaf",
+              "name": "Tillakaratne Dilshan",
+              "country": "Sri Lanka",
+              "position": "All-rounder",
+              "role": "All-rounder",
+              "level": 1,
+              "rating": 83
+            },
+            {
+              "id": "ai_dwayne_bravo_mgjp7k",
+              "name": "Dwayne Bravo",
+              "country": "West Indies",
+              "position": "All-rounder",
+              "role": "All-rounder",
+              "level": 1,
+              "rating": 83
+            },
+            {
+              "id": "ai_temba_bavuma_l0bmsf",
+              "name": "Temba Bavuma",
+              "country": "South Africa",
+              "position": "Batsman",
+              "role": "Right-handed Bat",
+              "level": 1,
+              "rating": 82
+            },
+            {
+              "id": "ai_dean_elgar_8nus55",
+              "name": "Dean Elgar",
+              "country": "South Africa",
+              "position": "Batsman",
+              "role": "Left-handed Bat",
+              "level": 1,
+              "rating": 81
+            },
+            {
+              "id": "ai_vvs_laxman_nx358i",
+              "name": "VVS Laxman",
+              "country": "India",
+              "position": "Batsman",
+              "role": "Right-handed Bat",
+              "level": 1,
+              "rating": 79
+            },
+            {
+              "id": "ai_gulbadin_naib_ocgxc9",
+              "name": "Gulbadin Naib",
+              "country": "Afghanistan",
+              "position": "All-rounder",
+              "role": "All-rounder",
+              "level": 1,
+              "rating": 77
+            },
+            {
+              "id": "ai_andrew_balbirnie_xm30aj",
+              "name": "Andrew Balbirnie",
+              "country": "Ireland",
+              "position": "Batsman",
+              "role": "Right-handed Bat",
+              "level": 1,
+              "rating": 77
+            },
+            {
+              "id": "ai_washington_sundar_o2x1t8",
+              "name": "Washington Sundar",
+              "country": "India",
+              "position": "All-rounder",
+              "role": "All-rounder",
+              "level": 1,
+              "rating": 76
+            },
+            {
+              "id": "ai_mohammed_shami_61mdmi",
+              "name": "Mohammed Shami",
+              "country": "India",
+              "position": "Bowler",
+              "role": "Fast Bowler",
+              "level": 1,
+              "rating": 88
+            },
+            {
+              "id": "ai_brendon_mccullum_tdt1xc",
+              "name": "Brendon McCullum",
+              "country": "New Zealand",
+              "position": "Wicket-keeper",
+              "role": "Wicket-keeper Bat",
+              "level": 1,
+              "rating": 86
+            },
+            {
+              "id": "ai_josh_inglis_essziq",
+              "name": "Josh Inglis",
+              "country": "Australia",
+              "position": "Wicket-keeper",
+              "role": "Wicket-keeper Bat",
+              "level": 1,
+              "rating": 80
+            }
+          ],
+          "bowling": [
+            {
+              "id": "ai_mohammed_shami_61mdmi",
+              "name": "Mohammed Shami",
+              "country": "India",
+              "position": "Bowler",
+              "role": "Fast Bowler",
+              "level": 1,
+              "rating": 88
+            },
+            {
+              "id": "ai_tillakaratne_dilshan_sdfmaf",
+              "name": "Tillakaratne Dilshan",
+              "country": "Sri Lanka",
+              "position": "All-rounder",
+              "role": "All-rounder",
+              "level": 1,
+              "rating": 83
+            },
+            {
+              "id": "ai_dwayne_bravo_mgjp7k",
+              "name": "Dwayne Bravo",
+              "country": "West Indies",
+              "position": "All-rounder",
+              "role": "All-rounder",
+              "level": 1,
+              "rating": 83
+            },
+            {
+              "id": "ai_gulbadin_naib_ocgxc9",
+              "name": "Gulbadin Naib",
+              "country": "Afghanistan",
+              "position": "All-rounder",
+              "role": "All-rounder",
+              "level": 1,
+              "rating": 77
+            },
+            {
+              "id": "ai_washington_sundar_o2x1t8",
+              "name": "Washington Sundar",
+              "country": "India",
+              "position": "All-rounder",
+              "role": "All-rounder",
+              "level": 1,
+              "rating": 76
+            },
+            {
+              "id": "ai_brendon_mccullum_tdt1xc",
+              "name": "Brendon McCullum",
+              "country": "New Zealand",
+              "position": "Wicket-keeper",
+              "role": "Wicket-keeper Bat",
+              "level": 1,
+              "rating": 86
+            },
+            {
+              "id": "ai_temba_bavuma_l0bmsf",
+              "name": "Temba Bavuma",
+              "country": "South Africa",
+              "position": "Batsman",
+              "role": "Right-handed Bat",
+              "level": 1,
+              "rating": 82
+            },
+            {
+              "id": "ai_dean_elgar_8nus55",
+              "name": "Dean Elgar",
+              "country": "South Africa",
+              "position": "Batsman",
+              "role": "Left-handed Bat",
+              "level": 1,
+              "rating": 81
+            },
+            {
+              "id": "ai_josh_inglis_essziq",
+              "name": "Josh Inglis",
+              "country": "Australia",
+              "position": "Wicket-keeper",
+              "role": "Wicket-keeper Bat",
+              "level": 1,
+              "rating": 80
+            },
+            {
+              "id": "ai_vvs_laxman_nx358i",
+              "name": "VVS Laxman",
+              "country": "India",
+              "position": "Batsman",
+              "role": "Right-handed Bat",
+              "level": 1,
+              "rating": 79
+            },
+            {
+              "id": "ai_andrew_balbirnie_xm30aj",
+              "name": "Andrew Balbirnie",
+              "country": "Ireland",
+              "position": "Batsman",
+              "role": "Right-handed Bat",
+              "level": 1,
+              "rating": 77
+            }
+          ]
+        }
+      },
+      "currentInnings": 1,
+      "innings": {
+        "1": {
+          "battingSide": "ai",
+          "balls": 0,
+          "runs": {
+            "user": 0,
+            "ai": 0
+          },
+          "wickets": {
+            "user": 0,
+            "ai": 0
+          },
+          "scorecard": {
+            "user": {
+              "Player3": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Player1": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Player4": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Player0": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Player8": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Player7": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Player2": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Player5": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Player10": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Player6": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Player9": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              }
+            },
+            "ai": {
+              "Mohammed Shami": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Brendon McCullum": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Dean Elgar": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Washington Sundar": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Gulbadin Naib": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Tillakaratne Dilshan": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "batting"
+              },
+              "Dwayne Bravo": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Andrew Balbirnie": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Temba Bavuma": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Josh Inglis": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "VVS Laxman": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              }
+            }
+          },
+          "timeline": [],
+          "nextBatterIndex": {
+            "user": 0,
+            "ai": 1
+          },
+          "currentBatter": {
+            "user": null,
+            "ai": {
+              "id": "ai_tillakaratne_dilshan_sdfmaf",
+              "name": "Tillakaratne Dilshan",
+              "country": "Sri Lanka",
+              "position": "All-rounder",
+              "role": "All-rounder",
+              "level": 1,
+              "rating": 83
+            }
+          },
+          "currentBowler": {
+            "user": {
+              "id": "p8",
+              "name": "Player8",
+              "position": "Bowler",
+              "level": 1,
+              "rating": 75
+            },
+            "ai": null
+          }
+        },
+        "2": {
+          "battingSide": "user",
+          "balls": 0,
+          "runs": {
+            "user": 0,
+            "ai": 0
+          },
+          "wickets": {
+            "user": 0,
+            "ai": 0
+          },
+          "scorecard": {
+            "user": {
+              "Player3": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Player1": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Player4": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Player0": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Player8": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Player7": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Player2": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Player5": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Player10": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Player6": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Player9": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              }
+            },
+            "ai": {
+              "Mohammed Shami": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Brendon McCullum": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Dean Elgar": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Washington Sundar": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Gulbadin Naib": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Tillakaratne Dilshan": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Dwayne Bravo": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Andrew Balbirnie": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Temba Bavuma": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "Josh Inglis": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              },
+              "VVS Laxman": {
+                "runs": 0,
+                "balls": 0,
+                "fours": 0,
+                "sixes": 0,
+                "wickets": 0,
+                "oversBalls": 0,
+                "runsConceded": 0,
+                "status": "did not bat"
+              }
+            }
+          },
+          "timeline": [],
+          "nextBatterIndex": {
+            "user": 0,
+            "ai": 0
+          },
+          "currentBatter": {
+            "user": null,
+            "ai": null
+          },
+          "currentBowler": {
+            "user": null,
+            "ai": null
+          }
+        }
+      },
+      "winner": null
+    }
+  },
   "challenges": {},
   "duels": {}
 }
